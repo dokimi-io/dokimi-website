@@ -56,7 +56,8 @@ the site, is tracked as an issue.
 
 `mkdocs` is capped below 2.0, which removes the plugin system and rewrites theming with no
 migration path. The Material team's successor, Zensical, reads the same `mkdocs.yml`. Evaluating a
-move is tracked as an issue.
+move is tracked as an issue. `.github/workflows/zensical-watch.yml` checks every Monday whether
+Zensical has reached 0.1, and comments on that issue once it has.
 
 Pages load no fonts or scripts from third-party servers: `theme.font` is off, so the system font
 stack is used. The one outside request is the repository link in the header, which fetches the

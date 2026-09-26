@@ -1,0 +1,62 @@
+name: Watch Zensical
+
+# Checks once a week whether Zensical, the successor to Material for MkDocs, has reached
+# version 0.1. When it has, it comments once on the issue that tracks the migration, so the
+# decision can be revisited. See issue #9.
+#
+# Scheduled workflows only run from the default branch. In a public repository, GitHub
+# disables them after 60 days without any activity in the repository; re-enable the workflow
+# from the Actions tab if that happens.
+
+on:
+  schedule:
+    - cron: "17 6 * * 1" # Mondays, 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    name: Check the latest Zensical release
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPOSITORY: ${{ github.repository }}
+      ISSUE: "9"
+      THRESHOLD: "0.1"
+    steps:
+      - name: Compare the latest release with the threshold
+        run: |
+          set -euo pipefail
+          version=$(curl -fsSL https://pypi.org/pypi/zensical/json \
+            | python3 -c 'import json, sys; print(json.load(sys.stdin)["info"]["version"])')
+          echo "Latest Zensical release: $version (threshold: $THRESHOLD)"
+
+          reached=$(python3 - "$version" "$THRESHOLD" <<'PY'
+          import re, sys
+          def major_minor(text):
+              match = re.match(r"(\d+)\.(\d+)", text)
+              return (int(match[1]), int(match[2])) if match else (0, 0)
+          print("yes" if major_minor(sys.argv[1]) >= major_minor(sys.argv[2]) else "no")
+          PY
+          )
+
+          if [ "$reached" != "yes" ]; then
+            echo "Zensical $version is below $THRESHOLD. Nothing to do." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          marker="<!-- zensical-watch:$version -->"
+          if gh issue view "$ISSUE" --repo "$REPOSITORY" --json comments --jq '.comments[].body' \
+               | grep -qF "$marker"; then
+            echo "Zensical $version was already reported on #$ISSUE." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          gh issue comment "$ISSUE" --repo "$REPOSITORY" --body "$(printf '%s\n\n%s\n\n%s\n' \
+            "$marker" \
+            "**Zensical $version is out**, at or above the $THRESHOLD threshold this issue waits for: https://pypi.org/project/zensical/$version/" \
+            "Time to revisit the migration: try \`uvx zensical build\` on this repository, compare the result, and check the release notes for changes to template overrides.")"
+          echo "Reported Zensical $version on #$ISSUE." >> "$GITHUB_STEP_SUMMARY"
