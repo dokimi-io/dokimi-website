@@ -1,0 +1,10 @@
+# MkDocs build output
+site/
+
+# uv
+.venv/
+
+# OS and editors
+.DS_Store
+.idea/
+.vscode/

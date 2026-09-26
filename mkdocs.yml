@@ -1,0 +1,90 @@
+site_name: dokimi
+site_url: https://dokimi.io/
+site_description: >-
+  dokimi is a test orchestration framework for Kubernetes clusters. It runs network tests
+  between two chosen nodes, from a test definition you can read.
+site_author: The dokimi authors
+copyright: Copyright &copy; 2026 Florian Löhden · dokimi is released under the MIT License
+repo_url: https://github.com/dokimi-io/dokimi
+repo_name: dokimi-io/dokimi
+edit_uri: ""
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: en
+  logo: assets/images/logo.png
+  favicon: assets/images/favicon.png
+  font: false            # the system font stack, so no page load contacts Google Fonts
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+  icon:
+    repo: fontawesome/brands/github
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+  - Home: index.md
+  - Why dokimi: why.md
+  - How it works: how-it-works.md
+  - Getting started:
+      - getting-started/index.md
+      - Installation: getting-started/installation.md
+      - Your first run: getting-started/first-run.md
+      - Using the CLI: getting-started/using-the-cli.md
+  - Concepts:
+      - concepts/index.md
+      - Test definitions: concepts/test-definitions.md
+      - Pass criteria: concepts/pass-criteria.md
+      - Runs and exit codes: concepts/runs.md
+  - Roadmap: roadmap.md
+  - Community: community.md

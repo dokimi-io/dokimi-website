@@ -1,0 +1,25 @@
+{% extends "main.html" %}
+
+{% block tabs %}
+  {{ super() }}
+  <section class="dk-hero">
+    <div class="dk-hero__inner md-grid md-typeset">
+      <img class="dk-hero__banner"
+           src="{{ 'assets/images/banner.jpg' | url }}"
+           width="2000" height="1091"
+           alt="The dokimi vaquita between two Kubernetes nodes, with test traffic passing from one pod to the other">
+      <p class="dk-hero__lead">
+        Network tests between two nodes of your Kubernetes cluster,
+        described in a test definition you can read.
+      </p>
+      <div class="dk-hero__actions">
+        <a href="{{ 'getting-started/' | url }}" class="md-button md-button--primary">Get started</a>
+        <a href="{{ 'how-it-works/' | url }}" class="md-button">How it works</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block content %}
+  {{ page.content }}
+{% endblock %}
