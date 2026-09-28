@@ -10,7 +10,7 @@ hide:
 
     The first release, **0.1**, is coming soon. Until then, a run parses its test definition,
     resolves its two nodes against your cluster, plans the test, claims the cluster for itself,
-    and stops there without a verdict. Everything marked <span class="dk-status dk-status--works">works today</span> on
+    starts its own Prometheus, and stops there without a verdict. Everything marked <span class="dk-status dk-status--works">works today</span> on
     this site really does. Everything else is marked as planned.
 
 ## What dokimi does today
@@ -40,12 +40,13 @@ hide:
     <span class="dk-status dk-status--planned">evaluated from 0.1</span>
     [:octicons-arrow-right-24: Pass criteria](concepts/pass-criteria.md)
 
--   :material-kubernetes:{ .lg .middle } **Runs in the cluster, leaves nothing installed**
+-   :material-kubernetes:{ .lg .middle } **Runs in the cluster, as a one-shot Job**
 
     ---
 
     The CLI submits a one-shot Kubernetes Job and streams its log. Close your laptop and the run
-    carries on; reattach later from any machine. No controller stays behind between runs.
+    carries on; reattach later from any machine. No controller stays behind between runs. What
+    stays is each run's own Prometheus, kept so the run's history outlives it, until you remove it.
 
     <span class="dk-status dk-status--works">works today</span>
     [:octicons-arrow-right-24: How it works](how-it-works.md)

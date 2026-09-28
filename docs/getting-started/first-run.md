@@ -77,7 +77,8 @@ $ uv run dokimi submit kind-pair.yaml --service-account dokimi
 
 The first command resolves both nodes read-only and prints the plan. It creates nothing. The
 second submits the run and streams its log until the run stops, right after it claims the
-cluster.
+cluster and starts its Prometheus. The Prometheus is kept after the run; [Using the
+CLI](using-the-cli.md#cleaning-up) shows how to remove it.
 
 Worth trying once, to see the errors a first run can hit: point the definition at
 `dokimi-control-plane` (it is tainted), `kubectl cordon` a worker, or leave off

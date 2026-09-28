@@ -88,12 +88,12 @@ one and not in the other.
 | `test.protocol` | `udp` or `tcp` |
 | `test.duration` | a number with `ms`, `s`, `m` or `h`, for example `30s` |
 | `test.targetBandwidth` | a number with an optional `K`, `M` or `G`, for example `1G`. The prefixes are **decimal**: `1G` is 10⁹ bits per second |
-| `monitoring.mode` | `managed`, `existing` or `auto`. Defaults to `auto` |
+| `monitoring.mode` | `managed`, `existing` or `auto`. Defaults to `auto`. Today `auto` means `managed`, and a run refuses `existing` |
 | `validation` | **at least one** pass criterion. See [Pass criteria](pass-criteria.md) |
 | `results.directory` | where results go. Defaults to `./results` |
 
-These are the values the parser accepts today. Monitoring and results are recorded now and
-used once the run gets past planning.
+These are the values the parser accepts today. The monitoring mode is used from phase 4, and the
+results directory once a run gets that far.
 
 ## Strict, on purpose
 

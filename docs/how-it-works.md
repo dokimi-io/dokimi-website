@@ -34,7 +34,7 @@ so this table is also a key to what you see in the log.
 | 1 | Submission | The CLI validates, renders the manifests, submits the Job, streams its log, and can reattach. `--dry-run` stops here | <span class="dk-status dk-status--works">works today</span> |
 | 2 | Ingestion | In the Job, the definition is parsed and checked again | <span class="dk-status dk-status--works">works today</span> |
 | 3 | Planning | The two nodes are resolved against the cluster, and the test is planned | <span class="dk-status dk-status--works">works today</span> |
-| 4 | Preflight | The run claims the cluster, so only one run at a time measures its network. Then the cluster is checked before any test runs: scheduling, pod-to-pod connectivity, DNS, image pull, Prometheus access | <span class="dk-status dk-status--works">claim works today</span> <span class="dk-status dk-status--planned">checks planned</span> |
+| 4 | Preflight | The run claims the cluster, so only one run at a time measures its network. It starts its own Prometheus and checks that it answers queries. Then the cluster is checked before any test runs: scheduling, pod-to-pod connectivity, DNS, image pull | <span class="dk-status dk-status--works">claim and Prometheus work today</span> <span class="dk-status dk-status--planned">cluster checks planned</span> |
 | 5 | Suite rendering | The definition is rendered to the Robot suite that actually runs | <span class="dk-status dk-status--planned">planned</span> |
 | 6 | Execution | Robot Framework runs the suite, which deploys the test pods and starts the traffic | <span class="dk-status dk-status--planned">planned</span> |
 | 7 | Measurement | An exporter next to each test pod publishes the results as Prometheus metrics | <span class="dk-status dk-status--planned">planned</span> |
@@ -43,8 +43,8 @@ so this table is also a key to what you see in the log.
 | 10 | Diagnostics | Where the pods ran, and how healthy they were, captured while that evidence still exists | <span class="dk-status dk-status--planned">planned</span> |
 | 11 | Cleanup and exit | The run's objects are deleted, or kept if the run failed, and the exit code goes back to you | <span class="dk-status dk-status--planned">planned</span> |
 
-Today a run gets as far as the first step of phase 4, claiming the cluster, and then says it
-stops:
+Today a run gets as far as phase 4. It claims the cluster, starts its Prometheus and checks
+that it answers, and then says it stops:
 
 ```text
 run 20260925-083457-9e7c31
@@ -54,6 +54,12 @@ phase 3 (planning): 1 test, sequential
   pair-001  worker-01 -> worker-02
 
 phase 4 (preflight): cluster claimed for this run until 2026-09-25T08:53:10Z
+phase 4 (preflight): monitoring mode managed (requested)
+  Prometheus  http://run-20260925-083457-9e7c31-prometheus.dokimi-iperf2.svc:9090
+  node_exporter       absent
+  kube_state_metrics  absent
+phase 4 (preflight): Prometheus answers queries
+  kept after the run ...; remove it with: kubectl delete deployment,service,configmap ...
 the rest of phases 4 to 11 is not implemented in this build: ... The run stops here without a verdict.
 ```
 
@@ -81,6 +87,10 @@ A submission creates three objects in the test type's namespace, `dokimi-iperf2`
 | `run-<id>-owner` (ConfigMap) | The run's owner. Everything else the run creates points at it |
 | `run-<id>-definition` (ConfigMap) | Your test definition, mounted into the Job, so the run never depends on a file on your disk |
 | `run-<id>` (Job) | The run itself |
+
+In phase 4 the run adds its own Prometheus, `run-<id>-prometheus`: a ConfigMap, a Deployment
+and a Service. Unlike everything else, it is kept after the run, so the run's history outlives
+it.
 
 Every one of them is labelled `app.kubernetes.io/managed-by: dokimi` and `dokimi.io/run-id: <id>`.
 [Runs and exit codes](concepts/runs.md) goes into the details.

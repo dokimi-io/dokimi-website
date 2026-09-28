@@ -98,8 +98,8 @@ There is no release yet, so a source install has no release default.
 ## Cleaning up
 
 Automatic cleanup is planned for the first release. Until then, deleting a run's owner object
-removes everything the run created. The cluster's garbage collector follows the owner
-references:
+removes everything the run created except its Prometheus, which is kept on purpose. The
+cluster's garbage collector follows the owner references:
 
 ```console
 $ kubectl delete configmap run-20260924-200229-ca532a-owner -n dokimi-iperf2
@@ -108,5 +108,23 @@ $ kubectl delete configmap run-20260924-200229-ca532a-owner -n dokimi-iperf2
 Or by label:
 
 ```console
-$ kubectl delete job,configmap -n dokimi-iperf2 -l dokimi.io/run-id=20260924-200229-ca532a
+$ kubectl delete job,configmap -n dokimi-iperf2 \
+    -l 'dokimi.io/run-id=20260924-200229-ca532a,app.kubernetes.io/component!=prometheus'
+```
+
+The `component!=prometheus` part matters. Without it, the command also deletes the Prometheus's
+configuration and leaves the Prometheus itself running.
+
+To remove a run's Prometheus, use the command the run printed in phase 4:
+
+```console
+$ kubectl delete deployment,service,configmap -n dokimi-iperf2 \
+    -l dokimi.io/run-id=20260924-200229-ca532a,app.kubernetes.io/component=prometheus
+```
+
+Or remove every kept Prometheus at once:
+
+```console
+$ kubectl delete deployment,service,configmap -n dokimi-iperf2 \
+    -l app.kubernetes.io/managed-by=dokimi,app.kubernetes.io/component=prometheus
 ```

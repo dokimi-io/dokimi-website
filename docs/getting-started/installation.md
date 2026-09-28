@@ -81,14 +81,20 @@ cluster it tests.
 ## Once per cluster: `deploy/rbac.yaml`
 
 A run never creates a namespace, so submitting needs permissions only inside the run's
-namespace. The Job a run submits authenticates as its own service account, not as you, and two of
-the things it does are cluster-wide:
+namespace. The Job a run submits authenticates as its own service account, not as you, and three
+of the things it does are cluster-wide:
 
 - it reads the cluster's **nodes**, to plan;
 - it **lists ConfigMaps in every namespace**, to check that no other run is active, and takes a
   `Lease` in the `dokimi` namespace while it claims the cluster. Kubernetes cannot restrict a
   `list` by label, so this grant can read every ConfigMap in the cluster, including its data.
-  That is the price of one run at a time per cluster.
+  That is the price of one run at a time per cluster;
+- it **lists Services in every namespace**, to find a node-exporter or kube-state-metrics the
+  cluster already runs, so that its Prometheus scrapes those instead of deploying its own.
+
+The run's Prometheus runs as a second service account, `dokimi-prometheus`, which can read
+pods, Services and endpoint slices in every namespace, to discover what it scrapes. It is
+read-only.
 
 So an administrator applies this once per cluster:
 

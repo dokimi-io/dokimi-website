@@ -28,6 +28,12 @@ that namespace.
 The definition travels with the run in a ConfigMap instead of being read from your disk. That is
 what makes the Job self-contained, and why `attach` needs nothing local.
 
+In phase 4 the run adds its own Prometheus: a ConfigMap, a Deployment and a Service named
+`run-<id>-prometheus`. It scrapes only this run's exporters, every 5 seconds. A node-exporter or
+kube-state-metrics the cluster already runs is scraped too, where it runs; dokimi does not
+deploy either. If the Prometheus does not answer a query in time, the run stops with exit
+code `4` before any test pod exists.
+
 If the submission fails partway, for example because the Job is refused, what it already
 created is deleted again, each object by name and uid, after its labels are checked once more.
 
@@ -42,6 +48,12 @@ dokimi.io/run-id: 20260924-143012-k3f9x2
 
 Nothing without those labels is ever modified or deleted, and every lookup and delete is scoped
 by a label selector, not by name alone.
+
+**One exception is kept on purpose: the run's Prometheus.** It carries both labels, so it stays
+attributable to its run, but it does not point at the run's owner, so deleting the owner leaves
+it in place. It never stops a later run from starting. Each run keeps its own, so remove them
+when you no longer need their history; [Using the CLI](../getting-started/using-the-cli.md#cleaning-up)
+shows how.
 
 The Job also carries:
 
