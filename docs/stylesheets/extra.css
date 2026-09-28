@@ -1,0 +1,143 @@
+/* dokimi colours, taken from the banner artwork */
+:root {
+  --dk-navy: #0f2a5c;
+  --dk-navy-dark: #0a1f45;
+  --dk-blue: #2f6fde;
+  --dk-sky: #4aa8f0;
+  --dk-teal: #2a9d9a;
+  --dk-green: #2eb872;
+  --dk-grid-line: #dfe7f1;
+}
+
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: var(--dk-navy);
+  --md-primary-fg-color--light: #2d4a82;
+  --md-primary-fg-color--dark: var(--dk-navy-dark);
+  --md-accent-fg-color: var(--dk-blue);
+  --md-accent-fg-color--transparent: rgb(47 111 222 / 10%);
+  --md-typeset-a-color: var(--dk-blue);
+}
+
+[data-md-color-scheme="slate"] {
+  --md-hue: 220;
+  --md-primary-fg-color: #0b1d40;
+  --md-primary-fg-color--light: #1d3566;
+  --md-primary-fg-color--dark: #07142e;
+  --md-accent-fg-color: var(--dk-sky);
+  --md-accent-fg-color--transparent: rgb(74 168 240 / 12%);
+  --md-typeset-a-color: #6cb8f5;
+  --dk-grid-line: rgb(255 255 255 / 5%);
+}
+
+/* The logo is a circular crop of the mascot. */
+.md-header__button.md-logo img {
+  border-radius: 50%;
+  background: #fff;
+  height: 1.6rem;
+  width: 1.6rem;
+}
+
+/* Development notice */
+.md-banner {
+  background: var(--dk-teal);
+  color: #fff;
+}
+.md-banner a,
+.md-banner a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* Landing page hero: light hexagon grid behind the banner */
+.dk-hero {
+  background-color: var(--md-default-bg-color);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23dfe7f1' stroke-width='1.2'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='%23dfe7f1' stroke-width='1.2'/%3E%3C/svg%3E");
+  border-bottom: 1px solid var(--dk-grid-line);
+}
+[data-md-color-scheme="slate"] .dk-hero {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23ffffff0d' stroke-width='1.2'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='%23ffffff0d' stroke-width='1.2'/%3E%3C/svg%3E");
+}
+.dk-hero__inner {
+  padding: 1.6rem 0.8rem 2rem;
+  text-align: center;
+}
+.dk-hero__banner {
+  display: block;
+  width: 100%;
+  max-width: 54rem;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 1rem;
+}
+[data-md-color-scheme="slate"] .dk-hero__banner {
+  box-shadow: 0 0.4rem 2rem rgb(0 0 0 / 45%);
+}
+.dk-hero__lead {
+  max-width: 34rem;
+  margin: 1.4rem auto 1rem;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--md-default-fg-color);
+}
+.dk-hero__actions .md-button {
+  margin: 0.3rem;
+}
+
+/* Buttons in the artwork's navy and blue */
+[data-md-color-scheme="default"] .md-typeset .md-button--primary,
+[data-md-color-scheme="default"] .md-typeset .md-button--primary:hover {
+  background-color: var(--dk-navy);
+  border-color: var(--dk-navy);
+  color: #fff;
+}
+[data-md-color-scheme="default"] .md-typeset .md-button--primary:hover {
+  background-color: var(--dk-blue);
+  border-color: var(--dk-blue);
+}
+
+/* In dark mode the primary colour is near-black navy, so buttons use the sky blue instead. */
+[data-md-color-scheme="slate"] .md-typeset .md-button {
+  color: #8cc8f7;
+  border-color: #8cc8f7;
+}
+[data-md-color-scheme="slate"] .md-typeset .md-button--primary {
+  background-color: var(--dk-sky);
+  border-color: var(--dk-sky);
+  color: #0a1f45;
+}
+[data-md-color-scheme="slate"] .md-typeset .md-button:hover {
+  background-color: #8cc8f7;
+  border-color: #8cc8f7;
+  color: #0a1f45;
+}
+
+/* "Works today" / "planned" labels */
+.md-typeset .dk-status {
+  display: inline-block;
+  padding: 0 0.5em;
+  border-radius: 1em;
+  font-size: 0.72em;
+  font-weight: 700;
+  line-height: 1.7;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.md-typeset .dk-status--works {
+  background: rgb(46 184 114 / 15%);
+  color: #1c7a4b;
+}
+.md-typeset .dk-status--planned {
+  background: rgb(120 132 150 / 15%);
+  color: #5a6474;
+}
+[data-md-color-scheme="slate"] .md-typeset .dk-status--works { color: #6fd6a0; }
+[data-md-color-scheme="slate"] .md-typeset .dk-status--planned { color: #aab3c2; }
+
+/* Feature cards on the landing page */
+.md-typeset .grid.cards > ul > li,
+.md-typeset .grid > .card {
+  border-radius: 0.6rem;
+}
+.md-typeset .grid.cards > ul > li:hover {
+  border-color: var(--dk-sky);
+}
