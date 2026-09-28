@@ -3,7 +3,8 @@
 !!! note "Before the first release"
 
     There is no release yet, so you install dokimi from source and build the orchestrator image
-    yourself. A run currently stops after planning, without a verdict. Getting that far already
+    yourself. A run currently stops right after planning and claiming the cluster, without a
+    verdict. Getting that far already
     exercises the whole submission path against a real cluster.
 
 1. **[Installation](installation.md):** what you need, and how to install the CLI.

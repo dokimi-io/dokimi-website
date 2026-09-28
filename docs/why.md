@@ -34,7 +34,8 @@ the exit codes are a stable contract rather than an implementation detail.
 ## Where dokimi stands
 
 dokimi is young, and the first release is still being built. Today it gets as far as planning a
-test: it validates the definition, submits the run, resolves the two nodes and stops. The
+test: it validates the definition, submits the run, resolves the two nodes, claims the cluster
+so that no other run can start, and stops. The
 [roadmap](roadmap.md) shows what comes next, and in which order.
 
 ## Related projects

@@ -6,8 +6,8 @@ repository. Your default kubeconfig is never touched.
 
 !!! info "What you will see"
 
-    A run currently parses its definition, resolves its two nodes and plans the test, then stops
-    with exit code `5`, because the phases after planning are still being built. That is
+    A run currently parses its definition, resolves its two nodes, plans the test and claims the
+    cluster, then stops with exit code `5`, because the rest of the phases are still being built. That is
     expected. [How it works](../how-it-works.md#the-phases-of-a-run) shows the phases.
 
 ## 1. Start a local cluster
@@ -48,7 +48,7 @@ $ test-env/test-env.sh load orchestrator:dev
 $ export DOKIMI_IMAGE=orchestrator:dev
 ```
 
-## 3. Grant the run what it needs to plan
+## 3. Create the namespaces and grant the run what it needs
 
 ```console
 $ kubectl apply -f deploy/rbac.yaml
@@ -76,7 +76,8 @@ $ uv run dokimi submit kind-pair.yaml --service-account dokimi
 ```
 
 The first command resolves both nodes read-only and prints the plan. It creates nothing. The
-second submits the run and streams its log until the run stops after planning.
+second submits the run and streams its log until the run stops, right after it claims the
+cluster.
 
 Worth trying once, to see the errors a first run can hit: point the definition at
 `dokimi-control-plane` (it is tainted), `kubectl cordon` a worker, or leave off

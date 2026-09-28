@@ -20,8 +20,8 @@ cleaned up afterwards.
 | CLI: validate, dry-run, submit, stream, reattach | <span class="dk-status dk-status--works">done</span> |
 | Cluster discovery, node resolution and planning | <span class="dk-status dk-status--works">done</span> |
 | A multi-node test environment on one machine | <span class="dk-status dk-status--works">done</span> |
-| Rename to dokimi | <span class="dk-status dk-status--planned">in review</span> |
-| Run identity, ownership labels, one run at a time per cluster | <span class="dk-status dk-status--planned">in review</span> |
+| Rename to dokimi | <span class="dk-status dk-status--works">done</span> |
+| Run identity, ownership labels, one run at a time per cluster | <span class="dk-status dk-status--works">done</span> |
 | Preflight: check the cluster before running | <span class="dk-status dk-status--planned">planned</span> |
 | Managed Prometheus | <span class="dk-status dk-status--planned">planned</span> |
 | The `iperf2` test type | <span class="dk-status dk-status--planned">planned</span> |

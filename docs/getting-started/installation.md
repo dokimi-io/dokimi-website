@@ -9,7 +9,7 @@ Job, and you never install that: the CLI submits it.
 | --- | --- |
 | Python | **3.14 or newer**. `uv` fetches it if your system has none |
 | `uv` | **0.12.18 or newer**. This is enforced, because 0.12.18 fixes a path-traversal weakness during wheel installation |
-| Kubernetes | **1.35 or newer**, with credentials that can create Jobs and ConfigMaps in the run's namespace, and, once, an administrator to apply `deploy/rbac.yaml` |
+| Kubernetes | **1.35 or newer**, with credentials that can create Jobs and ConfigMaps in the run's namespace, and, once, an administrator to apply `deploy/rbac.yaml`, which creates that namespace and the `dokimi` lock namespace |
 | A container registry | only if your cluster cannot reach `ghcr.io` |
 
 Robot Framework is **not** required on your machine. It runs inside the cluster.
@@ -21,11 +21,13 @@ Robot Framework is **not** required on your machine. It runs inside the cluster.
 | macOS, Apple silicon | supported and tested |
 | Linux, x86_64 | supported and tested |
 | macOS, Intel · Linux, arm64 | supported, not yet tested |
-| Windows, through WSL2 | supported, not yet tested. WSL2 takes the Linux path |
+| Windows, through WSL2 | supported and tested. WSL2 takes the Linux path |
 | Windows, natively | not supported |
 
 On WSL2, clone the repository inside the Linux filesystem (`~/…`), not under `/mnt/c/…`, where
-executable bits are lost.
+every file shows as mode `0777` and file access is much slower. It was tested with the Docker
+engine installed in the Linux distribution; Docker Desktop's WSL2 integration is expected to work,
+but was not tested.
 
 ## Install `uv`
 
@@ -78,17 +80,25 @@ cluster it tests.
 
 ## Once per cluster: `deploy/rbac.yaml`
 
-The Job a run submits authenticates as its own service account, not as you. To plan, it reads
-the cluster's nodes, which is a cluster-wide permission. So an administrator applies this once
-per cluster:
+A run never creates a namespace, so submitting needs permissions only inside the run's
+namespace. The Job a run submits authenticates as its own service account, not as you, and two of
+the things it does are cluster-wide:
+
+- it reads the cluster's **nodes**, to plan;
+- it **lists ConfigMaps in every namespace**, to check that no other run is active, and takes a
+  `Lease` in the `dokimi` namespace while it claims the cluster. Kubernetes cannot restrict a
+  `list` by label, so this grant can read every ConfigMap in the cluster, including its data.
+  That is the price of one run at a time per cluster.
+
+So an administrator applies this once per cluster:
 
 ```console
 $ kubectl apply -f deploy/rbac.yaml
 ```
 
-It creates the `dokimi-iperf2` namespace, a `dokimi` service account in it, and a read-only
-ClusterRole that allows `get` and `list` on nodes, and nothing else. Runs then pass
-`--service-account dokimi`.
+It creates the `dokimi-iperf2` namespace for runs, the `dokimi` namespace for the run-start lock,
+a `dokimi` service account, and the grants it needs, each commented with the phase that needs
+it. Runs then pass `--service-account dokimi`.
 
 ## The orchestrator image
 

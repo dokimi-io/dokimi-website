@@ -9,8 +9,8 @@ hide:
 !!! warning "dokimi is in active development"
 
     The first release, **0.1**, is coming soon. Until then, a run parses its test definition,
-    resolves its two nodes against your cluster, plans the test, and stops there without a
-    verdict. Everything marked <span class="dk-status dk-status--works">works today</span> on
+    resolves its two nodes against your cluster, plans the test, claims the cluster for itself,
+    and stops there without a verdict. Everything marked <span class="dk-status dk-status--works">works today</span> on
     this site really does. Everything else is marked as planned.
 
 ## What dokimi does today
@@ -67,7 +67,8 @@ hide:
 
     Every object a run creates carries the run's labels, and every lookup and delete is scoped
     by them. Anything without those labels is never modified. A deadline stops an orphaned run on
-    its own.
+    its own. And a cluster runs one run at a time: a second run is refused while the first holds
+    it.
 
     <span class="dk-status dk-status--works">works today</span>
     [:octicons-arrow-right-24: Runs and exit codes](concepts/runs.md)

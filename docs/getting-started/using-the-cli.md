@@ -28,7 +28,7 @@ code.
 | `--dry-run` | render and stop. Contacts nothing, unless given `--kubeconfig` or `--context` |
 | `--no-follow` | submit and return, instead of streaming |
 | `--run-id` | use a specific run id instead of generating one |
-| `--namespace`, `-n` | use another namespace than the test type's |
+| `--namespace`, `-n` | use another namespace than the test type's. It must already exist: a run never creates one |
 | `--orchestrator-image` | use another image for the Job |
 | `--service-account` | run the Job as a specific service account |
 | `--kubeconfig`, `--context` | pick cluster credentials |
@@ -43,6 +43,9 @@ Planned matrix (1 test, sequential; nodes not checked)
   ...
 dry run: nothing was created.
 ```
+
+Before the manifests, it prints the run id, the namespace, the image, and the Job's `Deadline`:
+how long the cluster lets the run take before it stops it.
 
 The manifests go to **stdout**, and everything meant for a person goes to **stderr**, so the
 rendering can be saved or diffed on its own. A dry run renders with the same code a real
