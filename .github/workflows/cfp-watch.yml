@@ -1,0 +1,91 @@
+name: Watch conference calls for proposals
+
+# Checks twice a week whether the call for proposals of a conference dokimi could be
+# presented at has appeared. When one has, it comments once on the tracking issue, so it
+# can be looked at while there is still time to submit. See issue #13.
+#
+# Each check is a page that appears, or text that changes, when a call is published. A page
+# can exist before its call opens, so a comment is a prompt to look, not a guarantee. To
+# watch another conference, add a line to CHECKS.
+#
+# Scheduled workflows only run from the default branch. In a public repository, GitHub
+# disables them after 60 days without any activity in the repository; re-enable the workflow
+# from the Actions tab if that happens.
+
+on:
+  schedule:
+    - cron: "23 6 * * 1,4" # Mondays and Thursdays, 06:23 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    name: Check each conference's call for proposals
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPOSITORY: ${{ github.repository }}
+      ISSUE: "13"
+      # One check per line: id | name | kind | URL | pattern
+      #   exists   the URL answers HTTP 200
+      #   mentions the page at the URL contains the pattern (a case-insensitive regex)
+      CHECKS: |
+        fosdem-2027-cfp | FOSDEM 2027 | exists | https://pretalx.fosdem.org/fosdem-2027/cfp |
+        fosdem-2027-devrooms | FOSDEM 2027 developer rooms | mentions | https://fosdem.org/2027/news/ | /2027/news/[^"]*(accepted|participation)
+        rejekts-eu-2027 | Cloud Native Rejekts EU 2027 | exists | https://sessionize.com/cloud-native-rejekts-eu-2027/ |
+        autocon-7 | AutoCon 7 | mentions | https://networkautomation.forum/call-for-speakers | (AC ?7|AutoCon 7) Call for Speakers
+        containerdays-2027 | ContainerDays Hamburg 2027 | exists | https://sessionize.com/containerdays-hamburg-2027/ |
+        srecon27-emea | SREcon27 EMEA | exists | https://www.usenix.org/conference/srecon27emea/call-for-participation |
+        denog19 | DENOG19 | exists | https://cfp.denog.de/denog19/cfp |
+    steps:
+      - name: Check, and report each newly appeared call once
+        run: |
+          set -euo pipefail
+          agent="Mozilla/5.0 (compatible; dokimi-cfp-watch; +https://github.com/$REPOSITORY)"
+          trim() { local s="$1"; s="${s#"${s%%[![:space:]]*}"}"; printf '%s' "${s%"${s##*[![:space:]]}"}"; }
+          # Here-strings rather than pipes into `grep -q`: with pipefail, grep exiting early
+          # would turn a match into a failure.
+          comments=$(gh issue view "$ISSUE" --repo "$REPOSITORY" --json comments --jq '.comments[].body')
+
+          while IFS='|' read -r id name kind url pattern; do
+            id=$(trim "$id"); name=$(trim "$name"); kind=$(trim "$kind")
+            url=$(trim "$url"); pattern=$(trim "$pattern")
+            [ -n "$id" ] || continue
+
+            found=no
+            case "$kind" in
+              exists)
+                status=$(curl -s -o /dev/null -L -A "$agent" -w '%{http_code}' "$url" || true)
+                [ "$status" = "200" ] && found=yes
+                detail="$url answers HTTP 200"
+                ;;
+              mentions)
+                page=$(curl -fsSL -A "$agent" "$url" || true)
+                if grep -qiE -- "$pattern" <<< "$page"; then found=yes; fi
+                detail="$url now matches \`$pattern\`"
+                ;;
+              *)
+                echo "::error::unknown check kind '$kind' for $id"; exit 1
+                ;;
+            esac
+
+            if [ "$found" != "yes" ]; then
+              echo "- $name: not yet" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+
+            marker="<!-- cfp-watch:$id -->"
+            if grep -qF -- "$marker" <<< "$comments"; then
+              echo "- $name: already reported" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+
+            gh issue comment "$ISSUE" --repo "$REPOSITORY" --body "$(printf '%s\n\n%s\n\n%s\n' \
+              "$marker" \
+              "**$name: the call for proposals may be open.** $detail." \
+              "Check the deadline and the formats, then update the list in this issue.")"
+            echo "- $name: **reported**" >> "$GITHUB_STEP_SUMMARY"
+          done <<< "$CHECKS"
