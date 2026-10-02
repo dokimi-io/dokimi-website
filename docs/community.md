@@ -14,7 +14,11 @@ first.
 
 ## Contributing
 
-The repository's `docs/setup.md` covers a development environment, and the four checks CI runs:
+The repository's [CONTRIBUTING.md](https://github.com/dokimi-io/dokimi/blob/main/CONTRIBUTING.md)
+says how decisions are made, what every change is held to (clean code, tests and documentation
+that change together, only what exists described as working), and how pull requests work.
+
+Its `docs/setup.md` covers a development environment, and the four checks CI runs:
 
 ```console
 $ uv sync --locked --all-extras
@@ -25,6 +29,13 @@ $ uv run pytest
 ```
 
 None of them needs a cluster.
+
+## How we build dokimi
+
+dokimi is built with AI coding assistants. We use them to draft code, tests, documentation and
+design documents. We don't use them to decide: every architectural decision is recorded with the
+people who made it, and every change is reviewed by one of us before it merges. Commits written
+with an assistant say so in a `Co-Authored-By:` trailer.
 
 ## License
 
