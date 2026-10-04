@@ -100,6 +100,10 @@ It creates the `dokimi-iperf2` namespace for runs, the `dokimi` namespace for th
 a `dokimi` service account, and the grants it needs, each commented with the phase that needs
 it. Runs then pass `--service-account dokimi`.
 
+Inside `dokimi-iperf2`, the grants also let the Job create and read Pods, for the client and
+server pod each test runs in. There is no grant for `pods/exec`: a test is started over the
+network, not by running a command inside a pod.
+
 ## The orchestrator image
 
 A run is a reference to a container image. Once releases exist, the CLI will ship with the digest
