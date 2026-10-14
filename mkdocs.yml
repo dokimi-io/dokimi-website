@@ -1,8 +1,8 @@
 site_name: dokimi
 site_url: https://dokimi.io/
 site_description: >-
-  dokimi is a test orchestration framework for Kubernetes clusters. It runs network tests
-  between two chosen nodes, from a test definition you can read.
+  dokimi tests the performance of Kubernetes clusters against criteria you can read. Today it
+  measures network performance between two chosen nodes.
 site_author: The dokimi authors
 copyright: Copyright &copy; 2026 The dokimi authors · dokimi is released under the MIT License
 repo_url: https://github.com/dokimi-io/dokimi

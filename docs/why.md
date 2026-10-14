@@ -1,8 +1,8 @@
 # Why dokimi
 
-You want to know whether the network between two nodes of a Kubernetes cluster does what you
-need it to. You also want to ask again next week, after an upgrade or on the next cluster, and
-get an answer you can compare.
+You want to know whether a Kubernetes cluster performs the way you need it to, and today, with
+dokimi, that means whether the network between two of its nodes does. You also want to ask again
+next week, after an upgrade or on the next cluster, and get an answer you can compare.
 
 Doing that by hand usually means deploying two pods with `iperf`, reading numbers off a terminal,
 deciding on the spot whether they are good enough, and deleting the pods afterwards. That works
@@ -49,5 +49,6 @@ Other tools cover parts of this ground, and one of them may already fit what you
 | [ClusterLoader2](https://github.com/kubernetes/perf-tests/tree/master/clusterloader2) and [kube-burner](https://github.com/kube-burner/kube-burner) | Load and scalability testing of Kubernetes clusters |
 | [K-Bench](https://github.com/vmware-tanzu/k-bench) | Control-plane and data-plane benchmarks |
 
-dokimi's focus is narrower: a node-to-node network test, whose pass criteria are part of the
-test itself, run as one short-lived Job.
+dokimi's focus is narrower: performance tests whose pass criteria are part of the test itself,
+each run as one short-lived Job. Today that means network performance between two nodes. Storage,
+control-plane and scalability load, and application load testing are not what dokimi measures.
