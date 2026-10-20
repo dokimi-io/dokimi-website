@@ -88,12 +88,25 @@ one and not in the other.
 | `test.protocol` | `udp` or `tcp` |
 | `test.duration` | a number with `ms`, `s`, `m` or `h`, for example `30s` |
 | `test.targetBandwidth` | a number with an optional `K`, `M` or `G`, for example `1G`. The prefixes are **decimal**: `1G` is 10⁹ bits per second |
-| `monitoring.mode` | `managed`, `existing` or `auto`. Defaults to `auto` |
+| `monitoring.mode` | `managed`, `existing` or `auto`. Defaults to `auto`. See [Monitoring modes](#monitoring-modes) |
 | `validation` | **at least one** pass criterion. See [Pass criteria](pass-criteria.md) |
-| `results.directory` | where results go. Defaults to `./results` |
+| `results.directory` | where the run's reports go on your machine, under the run id. Defaults to `./results` |
 
-These are the values the parser accepts today. Monitoring and results are recorded now and
-used once the run gets past planning.
+These are the values the parser accepts today. Images are not part of a definition: they are
+chosen when you submit, so the same test runs unchanged in every cluster.
+[Installation](../getting-started/installation.md#the-images-a-run-uses) shows how.
+
+## Monitoring modes
+
+| Mode | What it means | Status |
+| --- | --- | --- |
+| `managed` | The run starts its own Prometheus, which scrapes the run's exporters, and keeps it after the run | <span class="dk-status dk-status--works">works today</span> |
+| `auto` | Use a compatible Prometheus the cluster already has, or fall back to `managed`. Detecting one is not built yet, so today `auto` always falls back to `managed`, and the log says so | <span class="dk-status dk-status--works">falls back to managed today</span> |
+| `existing` | Use a Prometheus the cluster already has, and modify nothing else | <span class="dk-status dk-status--planned">planned</span> |
+
+`validate` and `submit` refuse `existing` today, with exit code `3`, so a run that could only
+fail is never created. [Runs and exit codes](runs.md#what-a-run-creates) describes what a
+`managed` run deploys.
 
 ## Strict, on purpose
 

@@ -12,6 +12,8 @@ Packet Loss Should Be    At Most     0      percent
 
 Today, criteria are parsed and checked as part of the test definition. Evaluating them against
 real measurements arrives with the first release, starting with throughput and packet loss.
+Until then, a run still puts every criterion into Robot's report, where it **fails** and says
+it was not checked, rather than passing or being skipped with nothing compared.
 
 ## One record, two ways to write it
 

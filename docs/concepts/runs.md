@@ -17,7 +17,7 @@ A submission creates three objects, in this order:
 
 | Object | What it is for |
 | --- | --- |
-| `run-<id>-owner` (ConfigMap) | the run's owner. Everything else the run creates points at it |
+| `run-<id>-owner` (ConfigMap) | the run's owner. Everything else the run creates points at it, except its Prometheus |
 | `run-<id>-definition` (ConfigMap) | your test definition, mounted into the Job |
 | `run-<id>` (Job) | the run itself |
 
@@ -27,6 +27,37 @@ that namespace.
 
 The definition travels with the run in a ConfigMap instead of being read from your disk. That is
 what makes the Job self-contained, and why `attach` needs nothing local.
+
+Then the run adds what it needs, in two steps.
+
+**In phase 4, its own Prometheus:** a ConfigMap, a Deployment and a Service named
+`run-<id>-prometheus`.
+
+- It scrapes only this run's exporters, every 5 seconds: pods with this run's id that have a
+  container port named `metrics`. A Prometheus kept from an earlier run never records a later
+  run's results. The `iperf2` exporter is <span class="dk-status dk-status--planned">planned</span>,
+  so today there is no test result to scrape, only the node metrics below.
+- It prefers a node other than the two being tested, so it does not compete with the
+  measurement. On a two-node cluster it still runs.
+- It keeps at most 512 MB of data, in a 1 GiB volume.
+- A node-exporter or kube-state-metrics the cluster already runs is found by its Service and
+  scraped where it runs. dokimi never deploys kube-state-metrics; if there is none, the run
+  records it as absent.
+- If the cluster has no node-exporter, the run deploys one as a DaemonSet. It collects CPU,
+  memory and network interfaces only, on port 9137, and needs the host's network and nothing
+  else. A namespace that enforces the `baseline` Pod Security level refuses its pods; the run
+  then says so and continues without node metrics, which explain a result but never decide
+  one. The run removes the node-exporter it deployed when it ends, and leaves one it found.
+
+The run checks that its Prometheus answers a query. If it does not answer within three minutes,
+the run stops with exit code `4`, before any test pod exists. The log names the Prometheus, says
+it is kept, and prints the `kubectl port-forward` command that reaches it from your machine.
+
+**In phase 6, the test pods:** a client pod and a server pod for each pair of nodes, deployed by
+the Robot suite. The run removes them before it frees the cluster, however it ends, and waits
+until they are gone, because a pod that is still sending would disturb the next run. If they
+cannot be removed, the run says so, keeps its claim on the cluster until the claim expires, and
+prints the two `kubectl` commands that free it earlier.
 
 If the submission fails partway, for example because the Job is refused, what it already
 created is deleted again, each object by name and uid, after its labels are checked once more.
@@ -42,6 +73,16 @@ dokimi.io/run-id: 20260924-143012-k3f9x2
 
 Nothing without those labels is ever modified or deleted, and every lookup and delete is scoped
 by a label selector, not by name alone.
+
+**One exception is kept on purpose: the run's Prometheus.** It carries both labels, so it stays
+attributable to its run, but it does not point at the run's owner, so deleting the owner leaves
+it in place. It never stops a later run from starting. Each run keeps its own, so remove them
+when you no longer need their history; [Using the CLI](../getting-started/using-the-cli.md#cleaning-up)
+shows how.
+
+The run's reports do not stay in the cluster. They come back to your machine through the Job's
+log, as long as the Job's pod exists. [Using the CLI](../getting-started/using-the-cli.md#attach)
+says where they land.
 
 The Job also carries:
 
@@ -71,8 +112,9 @@ Wait for it to finish, or for its claim to expire. If it is stale, clear it by d
 
 A run holds the cluster only while its claim is live. It stops counting:
 
-- **when it ends**, however it ends: it marks itself finished on the way out, so a failed run
-  whose objects are kept as evidence does not block the next one;
+- **when it ends**, however it ends: on the way out it removes its test pods, waits until they
+  are gone, and then marks itself finished, so a failed run does not block the next one, and no
+  test is still sending once the cluster is free;
 - **when its claim expires**, if it crashed: the claim expires at the Job's own deadline, by
   which time the cluster has stopped the Job.
 
@@ -110,6 +152,7 @@ A few more rules:
 
 !!! note "Today"
 
-    Codes `0` to `2` are verdicts, and a run cannot reach a verdict yet: it stops right after
-    claiming the cluster and exits `5`. A node that is missing, cordoned or tainted stops it
-    earlier, in planning, with `3`. Another run holding the cluster stops it with `4`.
+    Codes `0` to `2` are verdicts, and a run cannot reach a verdict yet. It runs the test through
+    Robot Framework and then exits `5`, because measuring and evaluating the result are not built
+    yet. A node that is missing, cordoned or tainted stops it earlier, in planning, with `3`.
+    Another run holding the cluster, or a Prometheus that does not answer, stops it with `4`.

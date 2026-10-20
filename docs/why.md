@@ -18,8 +18,9 @@ criteria that decide pass or fail, with units written out:
 `Packet Loss Should Be At Most 0 percent`. Whoever reads the file knows what "good enough" means,
 because the file says so.
 
-**Nothing stays in your cluster.** A run is a one-shot Kubernetes Job. When it ends, no
-controller, operator or agent is left behind.
+**No controller stays in your cluster.** A run is a one-shot Kubernetes Job. When it ends, no
+controller, operator or agent is left behind. What stays is the run's own Prometheus, kept on
+purpose so that the run's history outlives it, until you remove it.
 
 **It touches only what it created.** Every object a run creates is labelled with the run's id.
 Lookups and deletes are scoped by those labels, never by name alone.
@@ -33,9 +34,11 @@ the exit codes are a stable contract rather than an implementation detail.
 
 ## Where dokimi stands
 
-dokimi is young, and the first release is still being built. Today it gets as far as planning a
+dokimi is young, and the first release is still being built. Today it gets as far as running a
 test: it validates the definition, submits the run, resolves the two nodes, claims the cluster
-so that no other run can start, and stops. The
+so that no other run can start, starts its own Prometheus, and runs the `iperf2` test through
+Robot Framework, whose report comes back to you. It does not yet collect the measurement or
+check it against the pass criteria, so a run ends without a verdict. The
 [roadmap](roadmap.md) shows what comes next, and in which order.
 
 ## Related projects
