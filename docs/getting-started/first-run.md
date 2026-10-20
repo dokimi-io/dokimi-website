@@ -43,18 +43,23 @@ for when behaviour specific to one CNI matters:
 ## 2. Build the images
 
 A source install has no default for the orchestrator image or the `iperf2` test image, so build
-both. Your cluster cannot pull a local build from a registry, so load them straight into the
-nodes, and tell dokimi to use them:
+both. Your cluster cannot pull a local build from a registry, so they are loaded straight into
+the nodes. One command does all of it:
 
 ```console
-$ docker build -f images/orchestrator/Dockerfile -t orchestrator:dev .
-$ docker build -f images/iperf2/Dockerfile -t iperf2:dev .
-$ test-env/test-env.sh load orchestrator:dev
-$ test-env/test-env.sh load iperf2:dev
-$ export DOKIMI_ORCHESTRATOR_IMAGE=orchestrator:dev DOKIMI_IPERF2_IMAGE=iperf2:dev
+$ out=$(test-env/test-env.sh images) && eval "$out"
 ```
 
-Without them, `submit` refuses before it creates anything, and says which image is missing.
+It builds `orchestrator:dev` and `iperf2:dev` from your checkout, loads both into every node, and
+sets `DOKIMI_ORCHESTRATOR_IMAGE` and `DOKIMI_IPERF2_IMAGE` to them. It also names the cluster
+`test-env` (`DOKIMI_CLUSTER`): every run needs a name for the cluster it runs on, and there is
+no default. Run it again after changing the code, to rebuild what the cluster runs.
+
+Use it as written, not as `eval "$(test-env/test-env.sh images)"`: if a build fails, that `eval`
+runs an empty string and succeeds, and the next run quietly uses the previous build.
+
+Without the images, `submit` refuses before it creates anything, and says which image is
+missing. Without a cluster name, it refuses too.
 `dokimi image` shows every image a run would use. The Prometheus and node-exporter images are
 pulled from `quay.io`, so the cluster needs to reach it.
 

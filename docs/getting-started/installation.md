@@ -165,3 +165,23 @@ component and where its reference came from.
 
 Build the `orchestrator` and `iperf2` images yourself and point dokimi at them.
 [Your first run](first-run.md) shows how.
+
+## The cluster's name
+
+Every result is labelled with the cluster it was measured on, so that history from two clusters
+is never mixed up. dokimi doesn't guess that name, not from the kubeconfig context and not from
+the cluster. You give it, and there is no default:
+
+| Source | How | Scope |
+| --- | --- | --- |
+| Run override | `--cluster lab-fra-1` | one run |
+| Installation override | `DOKIMI_CLUSTER=lab-fra-1`, on the machine that submits | one installation |
+
+Without either, `submit` refuses before it creates anything, a dry run included. The name is a
+DNS label: lowercase letters, digits and hyphens, starting and ending with a letter or digit, at
+most 63 characters. Anything else is refused rather than rewritten. `submit` writes the name into
+the Job, and `--dry-run` shows it.
+
+It only names the cluster. The [cluster credentials](#cluster-credentials) choose which cluster
+a run goes to, so `--cluster prod` with a staging context runs on staging, labelled `prod`. Pick
+one name per cluster and keep it.

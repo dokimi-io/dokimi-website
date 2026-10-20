@@ -42,6 +42,7 @@ code. At the end it extracts the run's reports, as [`attach`](#attach) describes
 | `--no-follow` | submit and return, instead of streaming |
 | `--run-id` | use a specific run id instead of generating one |
 | `--namespace`, `-n` | use another namespace than the test type's. It must already exist: a run never creates one |
+| `--cluster <name>` | the name the run's results are labelled with, instead of `DOKIMI_CLUSTER`. Required, one or the other: see [the cluster's name](installation.md#the-clusters-name) |
 | `--image <component>=<reference>` | choose an image for this run. Repeatable. The components are `orchestrator`, `iperf2`, `prometheus` and `node-exporter` |
 | `--orchestrator-image` | the earlier name of `--image orchestrator=` |
 | `--service-account` | run the Job as a specific service account |
@@ -58,8 +59,8 @@ Planned matrix (1 test, sequential; nodes not checked)
 dry run: nothing was created.
 ```
 
-Before the manifests, it prints the run id, the namespace, the images, each with where its
-reference came from, and the Job's `Deadline`: how long the cluster lets the run take before it
+Before the manifests, it prints the run id, the namespace, the cluster's name, the images, each
+with where its reference came from, and the Job's `Deadline`: how long the cluster lets the run take before it
 stops it.
 
 The manifests go to **stdout**, and everything meant for a person goes to **stderr**, so the
