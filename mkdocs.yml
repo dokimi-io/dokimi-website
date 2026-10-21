@@ -86,5 +86,11 @@ nav:
       - Test definitions: concepts/test-definitions.md
       - Pass criteria: concepts/pass-criteria.md
       - Runs and exit codes: concepts/runs.md
+  - Design notes:
+      - design/index.md
+      - A run is a one-shot Job: design/one-shot-job.md
+      - One run at a time: design/one-run-at-a-time.md
+      - Unknown input is refused: design/strict-input.md
+      - No data is never a pass: design/no-data-is-not-a-pass.md
   - Roadmap: roadmap.md
   - Community: community.md
