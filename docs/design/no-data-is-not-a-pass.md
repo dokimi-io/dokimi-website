@@ -18,11 +18,13 @@ pass.
 **Today, in practice:**
 
 - a tool that ran without producing a measurement fails its test;
+- a test whose exporters serve no result, or serve something unreadable, fails as
+  `metrics_missing` or `exporter_parse`, never as a pass;
 - the pass criteria are not evaluated yet, so each one fails with "was not checked" rather than
   passing or being skipped;
 - a run stops after its report with exit code `5`, because it can't reach a verdict yet;
-- a run that couldn't start properly, because the cluster is busy or its Prometheus can't be
-  queried, exits `4` before any test.
+- a cluster that can't run the test exits `4` before any test: another run holds it, its
+  Prometheus can't be queried, or one of the cluster checks fails.
 
 The full table of exit codes is in [Runs and exit codes](../concepts/runs.md).
 
