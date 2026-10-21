@@ -5,6 +5,7 @@ $ dokimi validate test.yaml          # parse and check; no cluster involved
 $ dokimi convert test.yaml           # print the Robot suite a run executes
 $ dokimi submit test.yaml --dry-run  # render the plan and the manifests
 $ dokimi submit test.yaml            # create the run and stream its log
+$ dokimi preflight test.yaml         # check the cluster for that run, and run no test
 $ dokimi attach <run-id>             # resume streaming a run that is already going
 $ dokimi image                       # show which images a run would use
 ```
@@ -42,7 +43,7 @@ code. At the end it extracts the run's reports, as [`attach`](#attach) describes
 | `--no-follow` | submit and return, instead of streaming |
 | `--run-id` | use a specific run id instead of generating one |
 | `--namespace`, `-n` | use another namespace than the test type's. It must already exist: a run never creates one |
-| `--cluster <name>` | the name the run's results are labelled with, instead of `DOKIMI_CLUSTER`. Required, one or the other: see [the cluster's name](installation.md#the-clusters-name) |
+| `--cluster <name>` | the name the run's results are labelled with, instead of `DOKIMI_CLUSTER`; `preflight` takes it too. Required, one or the other: see [the cluster's name](installation.md#the-clusters-name) |
 | `--image <component>=<reference>` | choose an image for this run. Repeatable. The components are `orchestrator`, `iperf2`, `prometheus` and `node-exporter` |
 | `--orchestrator-image` | the earlier name of `--image orchestrator=` |
 | `--service-account` | run the Job as a specific service account |
@@ -84,6 +85,42 @@ a successful submission. It says nothing about the run, which hasn't finished ye
 stopped following run 20260924-200229-ca532a. The run is unaffected and continues in the
 cluster; resume with: dokimi attach 20260924-200229-ca532a
 ```
+
+## `preflight`
+
+```console
+$ dokimi preflight test.yaml --service-account dokimi
+```
+
+Checks that the cluster can run the definition's test, and runs no test. It submits the same
+run `submit` would, and its Job stops after the checks, so it checks exactly what every run
+checks first. It exits `0` if the cluster is ready, and `4` if not, naming the check:
+
+```text
+dokimi: cluster not ready (connectivity): the probe of pair-001 (worker-01 -> worker-02): no UDP to the server pod at 10.244.2.7:5001 arrived
+```
+
+| Check | What failed | Where to look |
+| --- | --- | --- |
+| `run_already_active` | another run holds the cluster | [One run at a time](../concepts/runs.md#one-run-at-a-time) |
+| `prometheus_unreachable` | the run's Prometheus didn't answer a query within three minutes | its pod, and the Job's path to it on 9090/TCP |
+| `node_count` | a node the test needs is gone, or no longer takes a test pod | `kubectl get nodes` |
+| `scheduling` | a pod of the test couldn't be placed | its events: resources, taints, quotas |
+| `image_pull` | a pod was placed, and couldn't get its image, three times | the image reference, the registry, the pull credentials |
+| `connectivity` | the Job couldn't reach the client pod, or no traffic reached the server | NetworkPolicies, the CNI, an IPv4 pod network |
+| `dns` | the pod network works, and `kubernetes.default.svc` didn't resolve in the client pod | the cluster's DNS |
+
+The checks use the test's own two pods, on its two nodes and from its image. Instead of
+measuring, the client sends one second of traffic at 10 Mbit/s and resolves a cluster name. The
+pods are removed afterwards, so they never run next to a test.
+
+It is not a preview: `submit --dry-run` creates nothing, while `preflight` creates real pods,
+because whether they schedule and connect can only be seen by trying. It claims the cluster
+while it runs, starts the run's Prometheus, which is kept like every run's, and removes
+everything else it deployed. A passed check is a floor, not a guarantee: one pair, under no load,
+says nothing about a larger test.
+
+`preflight` takes the same flags as `submit`, except `--dry-run`.
 
 ## `attach`
 

@@ -80,7 +80,8 @@ in a message.
 
 ## Planned
 
-- **No data is never a pass.** When evaluation arrives, a criterion with no measurement behind it
-  fails as an error. It does not pass by default.
+- **No data is never a pass.** Already today, a test whose exporters serve no result fails as
+  `metrics_missing`. When evaluation arrives, a criterion with no measurement behind it fails as
+  an error too. It never passes by default.
 - **Percentiles** such as `P99 Latency Should Be At Most 200 microseconds` have their place in
   the grammar reserved, but are not accepted yet.
