@@ -41,7 +41,7 @@ overrides/home.html     the landing page's hero section
 mkdocs.yml              navigation, theme and Markdown extensions
 ```
 
-The logo and favicon are circular crops of the mascot, a vaquita, taken from the banner artwork.
+The logo and favicon are circular crops of the mascot, a vaquita, taken from the first banner artwork.
 
 ## Deployment
 
