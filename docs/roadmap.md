@@ -30,7 +30,7 @@ cleaned up afterwards.
 | Running the test through Robot Framework, with Robot's report | <span class="dk-status dk-status--works">done</span> |
 | Bringing Robot's report back to your machine | <span class="dk-status dk-status--works">done</span> |
 | Measurement | <span class="dk-status dk-status--works">done</span> |
-| Evaluating the pass criteria | <span class="dk-status dk-status--planned">planned</span> |
+| Evaluating the pass criteria | <span class="dk-status dk-status--works">done</span> |
 | Result files: CSV and JSONL | <span class="dk-status dk-status--planned">planned</span> |
 | Post-run diagnostics | <span class="dk-status dk-status--works">done</span> |
 | Outcomes, cleanup and the final exit code | <span class="dk-status dk-status--planned">planned</span> |

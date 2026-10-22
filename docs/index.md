@@ -37,12 +37,11 @@ hide:
     ---
 
     `Throughput Should Be At Least 950 megabits per second`. Criteria are part of the test
-    definition, with the unit written out. They are validated today. Evaluating them against
-    measurements comes with the first release. Until then, each one fails in Robot's report
-    and says it was not checked.
+    definition, with the unit written out. Every run evaluates them against what each pair
+    measured and lists each one with its value. A pair that couldn't be measured is an error,
+    never a pass.
 
-    <span class="dk-status dk-status--works">validated today</span>
-    <span class="dk-status dk-status--planned">evaluated from 0.1</span>
+    <span class="dk-status dk-status--works">works today</span>
     [:octicons-arrow-right-24: Pass criteria](concepts/pass-criteria.md)
 
 -   :material-kubernetes:{ .lg .middle } **Runs in the cluster, as a one-shot Job**
@@ -107,9 +106,9 @@ hide:
 <span class="dk-status dk-status--planned">planned for 0.1</span>
 
 The first release completes one path end to end. It already runs one `iperf2` UDP test between
-two nodes you name, next to a managed Prometheus, checks the cluster first, reads the measurement
-and records where everything ran. What it adds is the rest of that path: dokimi evaluates
-throughput and packet-loss criteria against the measurement, writes the results as CSV and JSONL,
-and cleans up after itself. The run's exit code is then its verdict.
+two nodes you name, next to a managed Prometheus, checks the cluster first, reads the measurement,
+evaluates the pass criteria against it and records where everything ran. What it adds is the rest
+of that path: dokimi writes the results as CSV and JSONL, and cleans up after itself. The run's
+exit code is then its verdict.
 
 [See the roadmap](roadmap.md){ .md-button }

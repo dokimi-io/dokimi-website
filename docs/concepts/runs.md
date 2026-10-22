@@ -167,7 +167,8 @@ A few more rules:
 
 !!! note "Today"
 
-    Codes `0` to `2` are verdicts, and a run cannot reach a verdict yet. It runs the test through
-    Robot Framework and then exits `5`, because measuring and evaluating the result are not built
-    yet. A node that is missing, cordoned or tainted stops it earlier, in planning, with `3`.
+    Codes `0` to `2` are verdicts, and a run cannot return one yet. It runs the test through
+    Robot Framework, measures it and evaluates the pass criteria, and then exits `5` whatever they
+    came to, because turning the outcome into the exit code is not built yet. Each test's outcome
+    is in the log and in Robot's report. A node that is missing, cordoned or tainted stops it earlier, in planning, with `3`.
     Another run holding the cluster, or a Prometheus that does not answer, stops it with `4`.

@@ -34,12 +34,13 @@ the exit codes are a stable contract rather than an implementation detail.
 
 ## Where dokimi stands
 
-dokimi is young, and the first release is still being built. Today it gets as far as measuring:
+dokimi is young, and the first release is still being built. Today it gets as far as evaluating the result:
 it validates the definition, submits the run, resolves the two nodes, claims the cluster so that
 no other run can start, starts its own Prometheus, checks that the cluster can run the test,
-runs the `iperf2` test through Robot Framework, and reads the measurement. Robot's report comes
-back to you. It does not yet check the measurement against the pass criteria, so a run ends
-without a verdict. The
+runs the `iperf2` test through Robot Framework, reads the measurement and evaluates the pass
+criteria against it. Robot's report comes back to you, with each test's outcome. It does not yet
+turn that outcome into the run's exit code, write CSV and JSONL results, or clean up everything
+it created. The
 [roadmap](roadmap.md) shows what comes next, and in which order.
 
 ## Related projects
