@@ -22,17 +22,17 @@ cleaned up afterwards.
 | A multi-node test environment on one machine | <span class="dk-status dk-status--works">done</span> |
 | Rename to dokimi | <span class="dk-status dk-status--works">done</span> |
 | Run identity, ownership labels, one run at a time per cluster | <span class="dk-status dk-status--works">done</span> |
-| Preflight: check the cluster before running | <span class="dk-status dk-status--planned">planned</span> |
+| Preflight: check the cluster before running | <span class="dk-status dk-status--works">done</span> |
 | Managed Prometheus, with a node-exporter when the cluster has none | <span class="dk-status dk-status--works">done</span> |
 | The `iperf2` test type: its plugin, its image and the per-test readiness gate | <span class="dk-status dk-status--works">done</span> |
 | Choosing every image a run uses when you submit | <span class="dk-status dk-status--works">done</span> |
-| The `iperf2` exporter | <span class="dk-status dk-status--planned">planned</span> |
+| The `iperf2` exporter | <span class="dk-status dk-status--works">done</span> |
 | Running the test through Robot Framework, with Robot's report | <span class="dk-status dk-status--works">done</span> |
 | Bringing Robot's report back to your machine | <span class="dk-status dk-status--works">done</span> |
-| Measurement | <span class="dk-status dk-status--planned">planned</span> |
-| Evaluating the pass criteria | <span class="dk-status dk-status--planned">planned</span> |
+| Measurement | <span class="dk-status dk-status--works">done</span> |
+| Evaluating the pass criteria | <span class="dk-status dk-status--works">done</span> |
 | Result files: CSV and JSONL | <span class="dk-status dk-status--planned">planned</span> |
-| Post-run diagnostics | <span class="dk-status dk-status--planned">planned</span> |
+| Post-run diagnostics | <span class="dk-status dk-status--works">done</span> |
 | Outcomes, cleanup and the final exit code | <span class="dk-status dk-status--planned">planned</span> |
 | An end-to-end acceptance run | <span class="dk-status dk-status--planned">planned</span> |
 

@@ -37,18 +37,19 @@ so this table is also a key to what you see in the log.
 | 1 | Submission | The CLI validates, renders the manifests, submits the Job, streams its log, and can reattach. `--dry-run` stops here | <span class="dk-status dk-status--works">works today</span> |
 | 2 | Ingestion | In the Job, the definition is parsed and checked again | <span class="dk-status dk-status--works">works today</span> |
 | 3 | Planning | The two nodes are resolved against the cluster, and the test is planned | <span class="dk-status dk-status--works">works today</span> |
-| 4 | Preflight | The run claims the cluster, so only one run at a time measures its network. It starts its own Prometheus and checks that it answers queries. Then the cluster is checked before any test runs: scheduling, pod-to-pod connectivity, DNS, image pull | <span class="dk-status dk-status--works">claim and Prometheus work today</span> <span class="dk-status dk-status--planned">cluster checks planned</span> |
+| 4 | Preflight | The run claims the cluster, so only one run at a time measures its network. It starts its own Prometheus and checks that it answers queries. Then the cluster is checked before any test runs: the nodes, scheduling, image pull, pod-to-pod connectivity and DNS, with the test's own two pods. `dokimi preflight` runs this phase on its own | <span class="dk-status dk-status--works">works today</span> |
 | 5 | Suite rendering | The definition is rendered to the Robot suite that actually runs | <span class="dk-status dk-status--works">works today</span> |
 | 6 | Execution | Robot Framework runs the suite, which deploys the test pods, waits until both are ready, starts the traffic and waits for it to finish | <span class="dk-status dk-status--works">works today</span> |
-| 7 | Measurement | An exporter next to each test pod publishes the results as Prometheus metrics | <span class="dk-status dk-status--planned">planned</span> |
-| 8 | Validation | The pass criteria are evaluated against the measurements. No data is never a pass | <span class="dk-status dk-status--planned">planned</span> |
+| 7 | Measurement | An exporter next to each test pod serves its result as Prometheus metrics. The run reads it directly, and the receiver's view is the result; then it checks that Prometheus holds the same values. No data is never a pass | <span class="dk-status dk-status--works">works today</span> |
+| 8 | Validation | Every pass criterion is evaluated against what each pair measured. A test passes, fails, or is an error when a pair couldn't be measured. No data is never a pass | <span class="dk-status dk-status--works">works today</span> |
 | 9 | Reporting | Robot's own report, which comes back to your machine, plus a CSV and JSONL result file | <span class="dk-status dk-status--works">Robot's report works today</span> <span class="dk-status dk-status--planned">CSV and JSONL planned</span> |
-| 10 | Diagnostics | Where the pods ran, and how healthy they were, captured while that evidence still exists | <span class="dk-status dk-status--planned">planned</span> |
+| 10 | Diagnostics | Where the pods ran, how each ended, and which pairs were down, captured while that evidence still exists, on every run | <span class="dk-status dk-status--works">works today</span> |
 | 11 | Cleanup and exit | The run's objects are deleted, or kept if the run failed, and the exit code goes back to you | <span class="dk-status dk-status--works">test pods removed today</span> <span class="dk-status dk-status--planned">the rest planned</span> |
 
-Today a run gets as far as phase 9's Robot report. It claims the cluster, starts its
-Prometheus and checks that it answers, then runs the test through Robot Framework. Phases 7 and
-8 are not there yet, so it ends without a verdict and says so:
+Today a run gets as far as phase 10. It claims the cluster, starts its Prometheus and checks
+that it answers, checks the cluster with the test's own pair, runs the test through Robot
+Framework, reads the result, evaluates the pass criteria against it and records where everything
+ran. The run's verdict as an exit code is not there yet, so it says so:
 
 ```text
 run 20261013-120000-a1b2c3
@@ -60,29 +61,45 @@ phase 3 (planning): 1 test, sequential
 phase 4 (preflight): cluster claimed for this run until 2026-10-13T12:20:30Z
 phase 4 (preflight): monitoring mode managed (requested)
   Prometheus  http://run-20261013-120000-a1b2c3-prometheus.dokimi-iperf2.svc:9090
-  node_exporter       deployed by this run (dokimi-iperf2/run-20261013-120000-a1b2c3-node-exporter)
-  kube_state_metrics  absent
+  ...
 phase 4 (preflight): Prometheus answers queries
   ...
-  kept after the run ...; remove it with: kubectl delete deployment,service,configmap ...
   query it from your machine with: kubectl port-forward -n dokimi-iperf2 service/run-20261013-120000-a1b2c3-prometheus 9090:9090
-phase 4 (preflight): the cluster checks are not implemented in this build ...; the run continues without them
+phase 4 (preflight): nodes worker-01, worker-02 accept test pods
+phase 4 (preflight): pair-001 scheduled, pulled its image and connected, as run-20261013-120000-a1b2c3-pair-001-preflight-client, run-20261013-120000-a1b2c3-pair-001-preflight-server
+  UDP to the server pod at 10.244.2.7:5001 arrived, and kubernetes.default.svc resolved
+phase 4 (preflight): removed 2 test pod(s)
+phase 4 (preflight): the cluster is ready
 
 phase 5 (suite rendering): /work/artifacts/20261013-120000-a1b2c3/suite.robot
 phase 6 (execution): pair-001  worker-01 -> worker-02, one Robot Framework process
 ...
+phase 7 (measurement): pair-001, read directly from its exporters (inbound): jitter_seconds 1.1e-05, packet_loss_percent 0, test_duration_seconds 30, throughput_bits_per_second 9.49e+08, transferred_bytes 3.56e+09
+phase 7 (measurement): Prometheus holds the series of pair-001
+
+phase 8 (validation): pair-001 fail, 2 criterion(s)
+  fail  Throughput Should Be At Least 950 megabits per second: 949 megabits per second
+  pass  Packet Loss Should Be At Most 0 percent: 0 percent
+
 phase 9a (reporting): /work/artifacts/20261013-120000-a1b2c3/log.html, .../report.html
 
-the rest of phases 7 to 11 is not implemented in this build: ... The run stops here without a verdict; Robot's report says which steps ran.
+the rest of phases 9b to 11 is not implemented in this build: ... So the exit code is not the run's verdict yet: each test's outcome is in phase 8 above and in Robot's report.
+phase 10 (diagnostics): 5 pod(s), 1 pair(s), none down
+  ...
+phase 10 (diagnostics): /work/artifacts/20261013-120000-a1b2c3/diagnostics.json
+
 phase 11 (cleanup): removed 2 test pod(s)
 phase 11 (cleanup): removed node-exporter run-20261013-120000-a1b2c3-node-exporter
 ...
 artifacts: results/20261013-120000-a1b2c3
 ```
 
-It exits with `5`, not `0`: a run without a verdict must never look like a run that passed. On
-the way out it removes its test pods and waits until they are gone, removes the node-exporter it
-deployed, and then marks itself finished, so it stops holding the cluster at once.
+It exits with `5`, whatever phase 8 found: the verdict as an exit code is not built yet, and a
+run that stops early must never look like a run that passed. A
+cluster that can't run the test stops it in phase 4 with `4`, before any test, and names the
+check that failed. On the way out it records where every pod ran, removes its test pods and
+waits until they are gone, removes the node-exporter it deployed, and then marks itself
+finished, so it stops holding the cluster at once.
 
 ## Where Robot Framework fits
 
@@ -105,11 +122,13 @@ results/20261013-120000-a1b2c3/
   report.html    its report
   output.xml     every pair's results, merged
   suite.robot    the suite that ran
-  pairs/         one output.xml per pair
+  pairs/         per pair: its output.xml and validation.json, what its criteria came to
 ```
 
-Until evaluating the pass criteria is built, every criterion keyword in that report **fails**
-and says it was not checked. A test must never look as if it passed when nothing was compared.
+Each pass criterion is a keyword in that report. It passes or fails with the measured value in
+its message, and every criterion is checked, not only the first. Each test is tagged
+`outcome:pass`, `outcome:fail` or `outcome:error`. A test with a pair that couldn't be measured is
+an error, tagged with the reason too, such as `error:metrics_missing`. It never passes.
 
 Robot Framework is **not** needed on your machine. The CLI works without it. It runs inside the
 cluster, in the orchestrator image.

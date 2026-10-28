@@ -7,9 +7,10 @@ repository. Your default kubeconfig is never touched.
 !!! info "What you will see"
 
     A run currently parses its definition, resolves its two nodes, claims the cluster, starts its
-    own Prometheus, and runs the `iperf2` test through Robot Framework. Robot's report comes back
-    to your machine. Then the run exits with code `5`, without a verdict, because measuring and
-    evaluating the result are still being built. That is expected.
+    own Prometheus, runs the `iperf2` test through Robot Framework, reads the result and
+    evaluates the pass criteria against it. Robot's report comes back to your machine. Then the
+    run exits with code `5`, whatever the criteria came to, because the verdict as an exit code is
+    still being built. That is expected.
     [How it works](../how-it-works.md#the-phases-of-a-run) shows the phases.
 
 ## 1. Start a local cluster
@@ -96,14 +97,25 @@ second submits the run and streams its log. In it you see the run:
 - claim the cluster, start its Prometheus and a node-exporter, and check that the Prometheus
   answers. It prints the `kubectl port-forward` command that reaches the Prometheus from your
   machine;
+- check the cluster with the test's own two pods: they are scheduled, pull their image, send a
+  second of traffic and resolve a cluster name, and are removed again;
 - render the Robot suite and run it: the client and server pods are deployed on your two
   nodes, and `iperf2` runs between them for the definition's duration, plus a warm-up pass;
-- say that the rest is not built yet, then remove the test pods and the node-exporter.
+- read the result directly from the pods' exporters, and check that Prometheus holds it too;
+- evaluate each pass criterion against the result, and list it as `pass` or `fail` with the
+  measured value;
+- record where every pod ran and how it ended, then say that the rest is not built yet, and
+  remove the test pods and the node-exporter.
 
 It exits with code `5`. Robot's report lands in `results/<run-id>/`, under the directory you
-ran `submit` from: `log.html`, `report.html`, `output.xml` and the `suite.robot` that ran. Open
-`log.html` to see each step. The test fails there, because every pass criterion fails and says
-it was not checked.
+ran `submit` from: `log.html`, `report.html`, `output.xml` and the `suite.robot` that ran, plus
+`measurement.json` with what was measured and `diagnostics.json` with where everything ran.
+`pairs/` holds each pair's `validation.json`, with what its criteria came to. Open `log.html` to
+see each step. Whether the test passes depends on your cluster: the example asks for 950 megabits
+per second without loss, which a cluster on one machine may not reach.
+
+To check the cluster without running a test, `uv run dokimi preflight kind-pair.yaml
+--service-account dokimi` runs only the checks, and exits `0` if the cluster is ready.
 
 The Prometheus is kept after the run; [Using the CLI](using-the-cli.md#cleaning-up) shows how
 to remove it.
