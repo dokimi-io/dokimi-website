@@ -115,8 +115,24 @@ Inside `dokimi-iperf2`, the grants let the Job:
 - create, read, list and delete DaemonSets, for the node-exporter it deploys when the cluster
   has none and removes when it ends;
 - create, read, list and delete Pods, for the client and server pod each test runs in, removed
-  again when the run ends. There is no grant for `pods/exec`: a test is started over the
-  network, not by running a command inside a pod.
+  when the run ends, unless a run that didn't pass keeps them. There is no grant for
+  `pods/exec`: a test is started over the network, not by running a command inside a pod.
+
+The Job deletes nothing else. A run's owner, definition and Job go after the run, removed by
+whoever fetched its reports, or by `dokimi cleanup`, with their own credentials.
+
+### What you need yourself
+
+You, or the CI job that submits, need only namespaced permissions in the run's namespace:
+
+| Command | Needs |
+| --- | --- |
+| `submit`, `preflight` | `create` on Jobs and ConfigMaps; `get` on Pods and their `log`, and `list` on Jobs and Pods, to follow the run; and, once the reports are fetched, `get` and `delete` on ConfigMaps and `list` and `delete` on Jobs, to remove the run |
+| `attach` | the same, without `create`; `get` on ConfigMaps also finds the run's results directory |
+| `cleanup` | `get` on ConfigMaps, and `list` and `delete` on ConfigMaps, Pods, Services, ServiceAccounts, Jobs, Deployments, DaemonSets and StatefulSets |
+
+A missing `delete` after a fetch is only a warning: the cluster removes the Job an hour after the
+run ended, and `dokimi cleanup` removes the rest.
 
 ### Network paths a test needs
 

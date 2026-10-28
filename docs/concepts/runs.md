@@ -9,7 +9,7 @@ characters of `[0-9a-z]`.
 - It uses only lowercase letters, digits and hyphens, so it is spelled the same way in labels,
   object names and result files, with no escaping anywhere.
 
-`attach` refuses anything that doesn't match, including a run id in capitals.
+`attach` and `cleanup` refuse anything that doesn't match, including a run id in capitals.
 
 ## What a run creates
 
@@ -69,10 +69,8 @@ stands either way.
 **In phase 10, before anything is removed,** the run records where every pod ran, how each one
 ended, and which pairs were down. That's `diagnostics.json`, next to Robot's report.
 
-The run removes the test pods before it frees the cluster, however it ends, and waits
-until they are gone, because a pod that is still sending would disturb the next run. If they
-cannot be removed, the run says so, keeps its claim on the cluster until the claim expires, and
-prints the two `kubectl` commands that free it earlier.
+**In phase 11, the run cleans up.** What it leaves depends on how it ended; see
+[What a run keeps](#what-a-run-keeps).
 
 If the submission fails partway, for example because the Job is refused, what it already
 created is deleted again, each object by name and uid, after its labels are checked once more.
@@ -96,8 +94,9 @@ when you no longer need their history; [Using the CLI](../getting-started/using-
 shows how.
 
 The run's reports do not stay in the cluster. They come back to your machine through the Job's
-log, as long as the Job's pod exists. [Using the CLI](../getting-started/using-the-cli.md#attach)
-says where they land.
+log, once: `submit` or `attach` removes the Job when it has extracted them, and the cluster
+removes a Job nobody fetched an hour after it finished.
+[Using the CLI](../getting-started/using-the-cli.md#attach) says where they land.
 
 The Job also carries:
 
@@ -107,6 +106,32 @@ The Job also carries:
   unnecessary.
 - **`backoffLimit: 0` and `restartPolicy: Never`.** The exit code is the verdict, so a controller
   that retried a non-zero exit would re-run the whole test on a plain failure.
+- **`ttlSecondsAfterFinished: 3600`**, so that the cluster removes a finished Job whose reports
+  nobody fetched within the hour.
+
+## What a run keeps
+
+<span class="dk-status dk-status--works">works today</span>
+
+A run cleans up after itself, in phase 11, and keeps what is worth looking at when it didn't
+pass:
+
+| The run | What stays | Until |
+| --- | --- | --- |
+| exited `0` | its Prometheus | you remove it |
+| didn't exit `0` | its Prometheus, its owner and definition, and the pods of each test that was measured or never started | `dokimi cleanup` |
+| stopped in its preflight | its Prometheus | you remove it |
+| crashed, or its Job was stopped | whatever it had created | `dokimi cleanup`, once its claim has expired |
+
+A kept test pod still has its logs and events. The node-exporter a run deployed always goes,
+or the Prometheus would go on scraping every node through it. `submit --retain always` keeps a
+passing run's evidence too, and `--retain never` keeps none.
+
+**A test pod that may still be sending never stays,** because the next run would measure next to
+it: the client of a test that timed out, or a test that lost a pod or recorded nothing. The run
+removes those and waits until they are gone before it frees the cluster. If they can't be
+removed, it keeps its claim until the claim expires, and says how to free the cluster earlier.
+[Using the CLI](../getting-started/using-the-cli.md#cleaning-up) shows `dokimi cleanup`.
 
 ## One run at a time
 
@@ -121,15 +146,14 @@ A second run that starts meanwhile is refused, exits `4`, and says which run hol
 ```text
 dokimi: refusing to start run 20260924-201500-p7m2q8 (run_already_active): run 20260924-200229-ca532a already active in this cluster.
   - ConfigMap dokimi-iperf2/run-20260924-200229-ca532a-owner claimed at 2026-09-24T20:02:41Z, claim expires at 2026-09-24T20:25:11Z
-Wait for it to finish, or for its claim to expire. If it is stale, clear it by deleting its owner, which removes what it created with it:
-  kubectl delete configmap -n dokimi-iperf2 run-20260924-200229-ca532a-owner
+Wait for it to finish, or for its claim to expire. If it is stale, because its Job is gone, clear it, which removes what it created with it:
+  dokimi cleanup 20260924-200229-ca532a --namespace dokimi-iperf2 --force
 ```
 
 A run holds the cluster only while its claim is live. It stops counting:
 
-- **when it ends**, however it ends: on the way out it removes its test pods, waits until they
-  are gone, and then marks itself finished, so a failed run does not block the next one, and no
-  test is still sending once the cluster is free;
+- **when it ends**, however it ends: once no test pod of it can still be sending, it marks
+  itself finished, so a failed run whose evidence is kept does not block the next one;
 - **when its claim expires**, if it crashed: the claim expires at the Job's own deadline, by
   which time the cluster has stopped the Job.
 
@@ -144,8 +168,8 @@ The exit codes are meant for automation, so they are a fixed contract:
 | Code | Meaning |
 | --- | --- |
 | `0` | the run completed, and it passed |
-| `1` | the run completed, and at least one test failed |
-| `2` | at least one test errored, or something went wrong after the run |
+| `1` | the run completed, and at least one test failed a criterion |
+| `2` | at least one test could not be validly measured, or something went wrong around the run |
 | `3` | invalid request: a bad definition, run id or flag, found before anything was created |
 | `4` | the cluster was not ready for a run (preflight), including another run already holding it |
 | `5` | internal or unexpected error |
@@ -155,7 +179,15 @@ The exit codes are meant for automation, so they are a fixed contract:
 means part of the test was not measured, and an incomplete picture matters more than any one
 finding.
 
+The code comes from each test's outcome, as Robot's report and its `validation.json` record it.
+A test that recorded nothing counts as an error.
+
 A few more rules:
+
+- An anomaly in phase 10's snapshot, such as a test pod that was evicted or a node that is no
+  longer Ready, makes the run exit `2` even if its tests passed: their results are not the whole
+  picture.
+- `dokimi preflight` runs no test, so it answers `0` or `4`.
 
 - A container that exits with a code outside this table, such as `137` after an out-of-memory
   kill, becomes `5`, and the message gives the raw code.
@@ -164,11 +196,3 @@ A few more rules:
   read as a failed test.
 - Robot Framework's own exit code is never passed through. It counts failed tests, which
   collides with this table.
-
-!!! note "Today"
-
-    Codes `0` to `2` are verdicts, and a run cannot return one yet. It runs the test through
-    Robot Framework, measures it and evaluates the pass criteria, and then exits `5` whatever they
-    came to, because turning the outcome into the exit code is not built yet. Each test's outcome
-    is in the log and in Robot's report. A node that is missing, cordoned or tainted stops it earlier, in planning, with `3`.
-    Another run holding the cluster, or a Prometheus that does not answer, stops it with `4`.

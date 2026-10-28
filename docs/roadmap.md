@@ -33,7 +33,7 @@ cleaned up afterwards.
 | Evaluating the pass criteria | <span class="dk-status dk-status--works">done</span> |
 | Result files: CSV and JSONL | <span class="dk-status dk-status--planned">planned</span> |
 | Post-run diagnostics | <span class="dk-status dk-status--works">done</span> |
-| Outcomes, cleanup and the final exit code | <span class="dk-status dk-status--planned">planned</span> |
+| Outcomes, cleanup and the final exit code | <span class="dk-status dk-status--works">done</span> |
 | An end-to-end acceptance run | <span class="dk-status dk-status--planned">planned</span> |
 
 ## After the first release

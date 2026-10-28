@@ -80,6 +80,20 @@ A failure names the pair and its measured value, for example `worker-01 -> worke
 (pair-001): 949 megabits per second, needs at least 950`. Robot's report tags each test with its
 outcome, and an error with its reason, such as `error:metrics_missing`.
 
+A test that ends before its criteria are checked is an error too, with its reason:
+
+| Reason | The test |
+| --- | --- |
+| `scheduling` | had a pod that could not be placed on its node |
+| `image_pull` | had a pod that could not get its image |
+| `tool_execution` | ran its tool, which measured nothing, measured another path than the pair's, or lost a pod |
+| `timeout` | did not finish in the time it was given |
+| `metrics_missing` | finished, and an exporter served no result for it |
+| `exporter_parse` | finished, and an exporter served something that is not a result |
+
+The run's exit code is its worst test's outcome: `0` if every test passed, `1` if one failed,
+`2` if one is an error. See [Exit codes](runs.md#exit-codes).
+
 ## What is checked
 
 A definition is refused, with exit code `3`, if a criterion:
