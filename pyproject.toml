@@ -5,10 +5,9 @@ description = "The dokimi website, dokimi.io"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "mkdocs-material>=9.7.7,<10",
-    # MkDocs 2.0 removes the plugin system and rewrites theming, with no migration path.
-    # Material already caps it; this makes the cap visible here.
-    "mkdocs>=1.6,<2",
+    # The Material for MkDocs team's successor, which reads the same mkdocs.yml. 0.1 is a
+    # beta, so the cap keeps a minor release from changing the build under us.
+    "zensical>=0.1.0,<0.2",
 ]
 
 [tool.uv]

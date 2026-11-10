@@ -2,7 +2,7 @@
 
 The source of [dokimi.io](https://dokimi.io), the website of
 [dokimi](https://github.com/dokimi-io/dokimi), built with
-[MkDocs](https://www.mkdocs.org/) and [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).
+[Zensical](https://zensical.org/), the successor to Material for MkDocs.
 
 ## Rule number one
 
@@ -23,8 +23,8 @@ You need [`uv`](https://docs.astral.sh/uv/) 0.12.18 or newer.
 
 ```console
 $ uv sync --locked
-$ uv run mkdocs serve        # live preview on http://127.0.0.1:8000
-$ uv run mkdocs build --strict
+$ uv run zensical serve      # live preview on http://127.0.0.1:8000
+$ uv run zensical build --strict
 ```
 
 `--strict` is what CI runs, and it fails on broken links and missing pages, so run it before you
@@ -38,7 +38,7 @@ docs/assets/images/     the banner, the logo and the favicons
 docs/stylesheets/       colours and the landing-page layout
 overrides/main.html     the development notice at the top of every page
 overrides/home.html     the landing page's hero section
-mkdocs.yml              navigation, theme and Markdown extensions
+mkdocs.yml              navigation, theme and Markdown extensions, which Zensical reads
 ```
 
 The logo and favicon are circular crops of the mascot, a vaquita, taken from the first banner artwork.
@@ -54,10 +54,11 @@ the site, is tracked as an issue.
 
 ## Dependencies
 
-`mkdocs` is capped below 2.0, which removes the plugin system and rewrites theming with no
-migration path. The Material team's successor, Zensical, reads the same `mkdocs.yml`. Evaluating a
-move is tracked as an issue. `.github/workflows/zensical-watch.yml` checks every Monday whether
-Zensical has reached 0.1, and comments on that issue once it has.
+The site is built with Zensical, which the Material for MkDocs team wrote as its successor
+when MkDocs 2.0 dropped the plugin system. It reads `mkdocs.yml` as it is. Two settings keep the
+site as it looked under Material: `theme.variant: classic`, and the `zensical` namespace for
+the icon shortcodes. Zensical 0.1 is a beta, so `pyproject.toml` caps it below 0.2, and
+`uv.lock` pins the exact version.
 
 Pages load no fonts or scripts from third-party servers: `theme.font` is off, so the system font
 stack is used. The one outside request is the repository link in the header, which fetches the
