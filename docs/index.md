@@ -11,9 +11,9 @@ hide:
     The first release, **0.1**, is coming soon. Until then, a run parses its test definition,
     resolves its two nodes against your cluster, claims the cluster for itself, starts its own
     Prometheus, checks that the cluster can run the test, runs the `iperf2` test through Robot
-    Framework, and reads the measurement. Robot's report comes back to your machine. What it does
-    not do yet is check the measurement against your pass criteria, so a run ends without a
-    verdict. Everything marked
+    Framework, reads the measurement, evaluates your pass criteria against it, and exits with its
+    verdict. Robot's report comes back to your machine. What it does not do yet is write the CSV
+    and JSONL result files. Everything marked
     <span class="dk-status dk-status--works">works today</span> on this site really does.
     Everything else is marked as planned.
 
@@ -83,8 +83,9 @@ hide:
 
     Every object a run creates carries the run's labels, and every lookup and delete is scoped
     by them. Anything without those labels is never modified. A deadline stops an orphaned run on
-    its own. And a cluster runs one run at a time: a second run is refused while the first holds
-    it.
+    its own. A run that didn't pass keeps its test pods for you to look at, and `dokimi cleanup`
+    removes them. And a cluster runs one run at a time: a second run is refused while the first
+    holds it.
 
     <span class="dk-status dk-status--works">works today</span>
     [:octicons-arrow-right-24: Runs and exit codes](concepts/runs.md)
@@ -93,8 +94,9 @@ hide:
 
     ---
 
-    Six codes, from `0` for a passing run to `5` for an internal error. A run that ends without
-    a verdict exits `5`, so it can never be mistaken for a run that passed.
+    The exit code is the verdict: `0` passed, `1` a criterion didn't hold, `2` a test couldn't be
+    validly measured. `3` to `5` mean there is no verdict, so a run that stops early can never
+    be mistaken for one that passed.
 
     <span class="dk-status dk-status--works">works today</span>
     [:octicons-arrow-right-24: Exit codes](concepts/runs.md#exit-codes)
@@ -107,8 +109,8 @@ hide:
 
 The first release completes one path end to end. It already runs one `iperf2` UDP test between
 two nodes you name, next to a managed Prometheus, checks the cluster first, reads the measurement,
-evaluates the pass criteria against it and records where everything ran. What it adds is the rest
-of that path: dokimi writes the results as CSV and JSONL, and cleans up after itself. The run's
-exit code is then its verdict.
+evaluates the pass criteria against it, records where everything ran, cleans up after itself and
+exits with its verdict. What it adds is the rest of that path: dokimi writes the results as CSV
+and JSONL, and an end-to-end acceptance run checks the whole of it.
 
 [See the roadmap](roadmap.md){ .md-button }

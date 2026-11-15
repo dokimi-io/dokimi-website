@@ -44,12 +44,12 @@ so this table is also a key to what you see in the log.
 | 8 | Validation | Every pass criterion is evaluated against what each pair measured. A test passes, fails, or is an error when a pair couldn't be measured. No data is never a pass | <span class="dk-status dk-status--works">works today</span> |
 | 9 | Reporting | Robot's own report, which comes back to your machine, plus a CSV and JSONL result file | <span class="dk-status dk-status--works">Robot's report works today</span> <span class="dk-status dk-status--planned">CSV and JSONL planned</span> |
 | 10 | Diagnostics | Where the pods ran, how each ended, and which pairs were down, captured while that evidence still exists, on every run | <span class="dk-status dk-status--works">works today</span> |
-| 11 | Cleanup and exit | The run's objects are deleted, or kept if the run failed, and the exit code goes back to you | <span class="dk-status dk-status--works">test pods removed today</span> <span class="dk-status dk-status--planned">the rest planned</span> |
+| 11 | Cleanup and exit | The run cleans up, keeps what a failed run left for you to look at, frees the cluster, and exits with its verdict: `0`, `1` or `2` | <span class="dk-status dk-status--works">works today</span> |
 
-Today a run gets as far as phase 10. It claims the cluster, starts its Prometheus and checks
-that it answers, checks the cluster with the test's own pair, runs the test through Robot
-Framework, reads the result, evaluates the pass criteria against it and records where everything
-ran. The run's verdict as an exit code is not there yet, so it says so:
+Today a run goes all the way to its verdict. It claims the cluster, starts its Prometheus and
+checks that it answers, checks the cluster with the test's own pair, runs the test through Robot
+Framework, reads the result, evaluates the pass criteria against it, records where everything
+ran, cleans up and exits. Only the CSV and JSONL result files are not built yet, and it says so:
 
 ```text
 run 20261013-120000-a1b2c3
@@ -82,24 +82,28 @@ phase 8 (validation): pair-001 fail, 2 criterion(s)
   pass  Packet Loss Should Be At Most 0 percent: 0 percent
 
 phase 9a (reporting): /work/artifacts/20261013-120000-a1b2c3/log.html, .../report.html
+phase 9b (results): the CSV and JSONL result files are not built yet. Each test's outcome is in phase 8 above, in its validation.json and in Robot's report
 
-the rest of phases 9b to 11 is not implemented in this build: ... So the exit code is not the run's verdict yet: each test's outcome is in phase 8 above and in Robot's report.
 phase 10 (diagnostics): 5 pod(s), 1 pair(s), none down
   ...
 phase 10 (diagnostics): /work/artifacts/20261013-120000-a1b2c3/diagnostics.json
 
-phase 11 (cleanup): removed 2 test pod(s)
 phase 11 (cleanup): removed node-exporter run-20261013-120000-a1b2c3-node-exporter
+phase 11 (cleanup): run kept for inspection (fail): run-20261013-120000-a1b2c3-pair-001-client, run-20261013-120000-a1b2c3-pair-001-server, and its owner and definition. It no longer holds the cluster. Remove it with: dokimi cleanup 20261013-120000-a1b2c3 --namespace dokimi-iperf2
 ...
 artifacts: results/20261013-120000-a1b2c3
+removed run 20261013-120000-a1b2c3's Job, now that its artifacts are here. What the run kept stays until: dokimi cleanup 20261013-120000-a1b2c3 --namespace dokimi-iperf2
 ```
 
-It exits with `5`, whatever phase 8 found: the verdict as an exit code is not built yet, and a
-run that stops early must never look like a run that passed. A
-cluster that can't run the test stops it in phase 4 with `4`, before any test, and names the
-check that failed. On the way out it records where every pod ran, removes its test pods and
-waits until they are gone, removes the node-exporter it deployed, and then marks itself
-finished, so it stops holding the cluster at once.
+It exits with `1`: a criterion did not hold. A run whose tests all pass exits `0`, and one with
+a test that couldn't be validly measured exits `2`, whatever the others found. A cluster that
+can't run the test stops it in phase 4 with `4`, before any test, and names the check that
+failed.
+
+On the way out it records where every pod ran and removes the node-exporter it deployed. A run
+that passed removes its test pods too. This one didn't, so it keeps them, with their logs and
+events, and its owner and definition, for you to look at, until `dokimi cleanup` removes them.
+Either way it marks itself finished, so it stops holding the cluster at once.
 
 ## Where Robot Framework fits
 
@@ -148,8 +152,13 @@ and a Service. Unlike everything else, it is kept after the run, so the run's hi
 it. If the cluster runs no node-exporter, the run also deploys one, as a DaemonSet, and removes
 it again when the run ends.
 
-In phase 6 each test adds a client pod and a server pod. The run removes them before it frees
-the cluster, however the run ends.
+In phase 6 each test adds a client pod and a server pod. A run that passed removes them. One
+that didn't keeps them for you to look at, unless the test may still be sending: the client of a
+test that timed out, say, is always removed, and the run waits until it is gone before it frees
+the cluster.
+
+Once `submit` or `attach` has brought the reports back, the Job goes. So do the owner and the
+definition, if the run kept nothing.
 
 Every one of them is labelled `app.kubernetes.io/managed-by: dokimi` and `dokimi.io/run-id: <id>`.
 [Runs and exit codes](concepts/runs.md) goes into the details.
