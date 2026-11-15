@@ -35,8 +35,7 @@ Then the run adds what it needs, in two steps.
 
 - It scrapes only this run's exporters, every 5 seconds: pods with this run's id that have a
   container port named `metrics`. A Prometheus kept from an earlier run never records a later
-  run's results. The `iperf2` exporter is <span class="dk-status dk-status--planned">planned</span>,
-  so today there is no test result to scrape, only the node metrics below.
+  run's results. Each `iperf2` test pod has its exporter on port 9101, next to the tool.
 - It prefers a node other than the two being tested, so it does not compete with the
   measurement. On a two-node cluster it still runs.
 - It keeps at most 512 MB of data, in a 1 GiB volume.
@@ -53,8 +52,24 @@ The run checks that its Prometheus answers a query. If it does not answer within
 the run stops with exit code `4`, before any test pod exists. The log names the Prometheus, says
 it is kept, and prints the `kubectl port-forward` command that reaches it from your machine.
 
+**Still in phase 4, the cluster checks.** The run reads the nodes again, then deploys the first
+pair once, with its own nodes and image, to see that its pods are scheduled, pull their image,
+reach each other and resolve a cluster name. These probe pods run without the exporter, so
+nothing scrapes them, and they are removed before the test starts. A failed check stops the run
+with exit code `4` and names it: `node_count`, `scheduling`, `image_pull`, `connectivity` or
+`dns`. [Using the CLI](../getting-started/using-the-cli.md#preflight) lists what each one means.
+
 **In phase 6, the test pods:** a client pod and a server pod for each pair of nodes, deployed by
-the Robot suite. The run removes them before it frees the cluster, however it ends, and waits
+the Robot suite. Each runs `iperf2` with its exporter next to it. Once the test has finished, the
+run reads both exporters directly (phase 7): the server's view, what arrived, is the result. A
+test whose exporters serve no complete result fails as `metrics_missing`, never as a pass. The
+run then checks that its Prometheus holds the same values, and warns if it doesn't; the result
+stands either way.
+
+**In phase 10, before anything is removed,** the run records where every pod ran, how each one
+ended, and which pairs were down. That's `diagnostics.json`, next to Robot's report.
+
+The run removes the test pods before it frees the cluster, however it ends, and waits
 until they are gone, because a pod that is still sending would disturb the next run. If they
 cannot be removed, the run says so, keeps its claim on the cluster until the claim expires, and
 prints the two `kubectl` commands that free it earlier.
@@ -152,7 +167,8 @@ A few more rules:
 
 !!! note "Today"
 
-    Codes `0` to `2` are verdicts, and a run cannot reach a verdict yet. It runs the test through
-    Robot Framework and then exits `5`, because measuring and evaluating the result are not built
-    yet. A node that is missing, cordoned or tainted stops it earlier, in planning, with `3`.
+    Codes `0` to `2` are verdicts, and a run cannot return one yet. It runs the test through
+    Robot Framework, measures it and evaluates the pass criteria, and then exits `5` whatever they
+    came to, because turning the outcome into the exit code is not built yet. Each test's outcome
+    is in the log and in Robot's report. A node that is missing, cordoned or tainted stops it earlier, in planning, with `3`.
     Another run holding the cluster, or a Prometheus that does not answer, stops it with `4`.

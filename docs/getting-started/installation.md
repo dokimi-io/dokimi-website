@@ -120,13 +120,21 @@ Inside `dokimi-iperf2`, the grants let the Job:
 
 ### Network paths a test needs
 
-If a NetworkPolicy applies in `dokimi-iperf2`, it has to allow two paths:
+If a NetworkPolicy applies in `dokimi-iperf2`, it has to allow three paths:
 
 - **from the Job to each client pod, on 5101/TCP.** That is how a test is started: the Job
   connects and sends the server's address;
-- **from the client pod to the server pod, on 5001**, over the test's protocol, UDP or TCP.
+- **from the client pod to the server pod, on 5001**, over the test's protocol, UDP or TCP;
+- **from the Job to each test pod's exporter, on 9101/TCP.** That is how the result is read. A
+  cluster that blocks it fails every test as `metrics_missing`.
 
-Test traffic uses the pod network and IPv4, so a pod network without IPv4 cannot run a test.
+Test traffic uses the pod network and IPv4, so a pod network without IPv4 cannot run a test. The
+run checks the first two paths, the address family and the cluster's DNS before any test, with
+[`dokimi preflight`](using-the-cli.md#preflight)'s checks. The third it cannot check in advance.
+
+The run's own Prometheus adds three more: from the Job to the Prometheus on 9090/TCP, from the
+Prometheus to each test pod's exporter on 9101/TCP, and from the Prometheus to the node-exporter
+on 9137/TCP on each node's address, if the run deployed one.
 
 ## The images a run uses
 
@@ -174,7 +182,7 @@ the cluster. You give it, and there is no default:
 
 | Source | How | Scope |
 | --- | --- | --- |
-| Run override | `--cluster lab-fra-1` | one run |
+| Run override | `--cluster lab-fra-1`, on `submit` or `preflight` | one run |
 | Installation override | `DOKIMI_CLUSTER=lab-fra-1`, on the machine that submits | one installation |
 
 Without either, `submit` refuses before it creates anything, a dry run included. The name is a

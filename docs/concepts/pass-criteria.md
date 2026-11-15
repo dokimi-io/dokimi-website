@@ -7,13 +7,11 @@ Throughput Should Be     At Least    950    megabits per second
 Packet Loss Should Be    At Most     0      percent
 ```
 
-<span class="dk-status dk-status--works">validated today</span>
-<span class="dk-status dk-status--planned">evaluated from 0.1</span>
+<span class="dk-status dk-status--works">works today</span>
 
-Today, criteria are parsed and checked as part of the test definition. Evaluating them against
-real measurements arrives with the first release, starting with throughput and packet loss.
-Until then, a run still puts every criterion into Robot's report, where it **fails** and says
-it was not checked, rather than passing or being skipped with nothing compared.
+Criteria are checked as part of the test definition, and every run evaluates them against what
+each pair measured. Each criterion appears in Robot's report and in the run's log as `pass` or
+`fail`, with the measured value in your unit. Every criterion is checked, not only the first.
 
 ## One record, two ways to write it
 
@@ -63,7 +61,24 @@ Maximum Latency Should Be    At Most     10     microseconds
 Throughput units are decimal: a megabit is 10⁶ bits.
 
 These are the criteria the grammar accepts. What a run can actually measure depends on the test
-type, and the first release evaluates throughput and packet loss.
+type: `iperf2` measures throughput, packet loss and jitter. No test type measures latency yet, so
+a latency criterion comes out as an error, never a pass.
+
+## How a criterion is evaluated
+
+The value each pair's exporters serve is converted into the criterion's unit and compared
+exactly, so `950 megabits per second` against a measured 949.999999 fails. The receiver's view
+is the result. A test has one of three outcomes:
+
+| Outcome | Means |
+| --- | --- |
+| `pass` | Measured, and every criterion holds for every pair |
+| `fail` | Measured, and a criterion does not hold for at least one pair: a finding about the network |
+| `error` | A pair could not be validly measured, so nothing about the network follows from it. It outranks `fail` |
+
+A failure names the pair and its measured value, for example `worker-01 -> worker-02
+(pair-001): 949 megabits per second, needs at least 950`. Robot's report tags each test with its
+outcome, and an error with its reason, such as `error:metrics_missing`.
 
 ## What is checked
 
@@ -78,9 +93,11 @@ A definition is refused, with exit code `3`, if a criterion:
 The number you wrote is kept exactly as written, so `0` stays `0` rather than turning into `0.0`
 in a message.
 
+**No data is never a pass.** A criterion with no measurement behind it is an error,
+`metrics_missing`, and a result the exporters serve in a form that can't be read is
+`exporter_parse`. Neither passes by default.
+
 ## Planned
 
-- **No data is never a pass.** When evaluation arrives, a criterion with no measurement behind it
-  fails as an error. It does not pass by default.
 - **Percentiles** such as `P99 Latency Should Be At Most 200 microseconds` have their place in
   the grammar reserved, but are not accepted yet.
