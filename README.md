@@ -59,9 +59,13 @@ migration path. The Material team's successor, Zensical, reads the same `mkdocs.
 move is tracked as an issue. `.github/workflows/zensical-watch.yml` checks every Monday whether
 Zensical has reached 0.1, and comments on that issue once it has.
 
-Pages load no fonts or scripts from third-party servers: `theme.font` is off, so the system font
-stack is used. The one outside request is the repository link in the header, which fetches the
-star and fork counts from the GitHub API in the visitor's browser.
+Pages load no fonts from third-party servers: `theme.font` is off, so the system font stack is
+used. Two requests do leave the site, both from the visitor's browser:
+
+- **The repository link in the header** fetches the star and fork counts from the GitHub API, on
+  every page.
+- **A page with a Mermaid diagram** loads Mermaid from `unpkg.com`, because the theme fetches it
+  from there when no copy of its own is loaded. Today that is only "How it works".
 
 ## License
 
