@@ -118,9 +118,9 @@ pass:
 
 | The run | What stays | Until |
 | --- | --- | --- |
-| exited `0` | its Prometheus | you remove it |
+| exited `0` | its Prometheus; until its reports are fetched, also its owner and definition | you remove the Prometheus; the owner and definition go with the fetch, or with `dokimi cleanup` |
 | didn't exit `0` | its Prometheus, its owner and definition, and the pods of each test that was measured or never started | `dokimi cleanup` |
-| stopped in its preflight | its Prometheus | you remove it |
+| stopped in its preflight | its Prometheus; until its reports are fetched, also its owner and definition | you remove the Prometheus; the owner and definition go with the fetch, or with `dokimi cleanup` |
 | crashed, or its Job was stopped | whatever it had created | `dokimi cleanup`, once its claim has expired |
 
 A kept test pod still has its logs and events. The node-exporter a run deployed always goes,
