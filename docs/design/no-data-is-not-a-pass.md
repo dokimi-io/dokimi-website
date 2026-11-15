@@ -1,8 +1,8 @@
 # No data is never a pass
 
 **What you notice:** whenever dokimi could not check something, the run doesn't pass. A test whose
-tool measured nothing fails. A criterion with no measurement behind it is an error, not a pass.
-And a run that stops early exits with an error, never `0`.
+tool measured nothing is an error. A criterion with no measurement behind it is an error, not a
+pass. And a run that stops early exits with an error, never `0`.
 
 ## Why
 
@@ -17,14 +17,15 @@ pass.
 
 **Today, in practice:**
 
-- a tool that ran without producing a measurement fails its test;
+- a tool that ran without producing a measurement makes its test an error, `tool_execution`;
 - a test whose exporters serve no result, or serve something unreadable, is an error,
   `metrics_missing` or `exporter_parse`, and Robot's report tags it `outcome:error`, never a pass;
 - every pass criterion is evaluated, and one that no pair can measure, such as latency today, is
   an error too. An error outranks a failure;
 - a definition without a criterion is refused, so a test always has something to pass against;
-- a run exits `5` after its report, whatever its criteria came to, because the verdict as an exit
-  code isn't built yet;
+- the run's exit code is its worst test outcome: `0` only if every test passed, `1` if one failed,
+  `2` if one is an error. Something wrong that the run found after its tests, in the pods it
+  deployed, makes it `2` as well;
 - a cluster that can't run the test exits `4` before any test: another run holds it, its
   Prometheus can't be queried, or one of the cluster checks fails.
 

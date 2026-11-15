@@ -29,6 +29,8 @@ sending traffic.
 
 - **Runs queue by hand.** There is no queue yet: a refused run is submitted again once the
   cluster is free.
-- **A run holds the cluster until its pods are gone.** It marks itself finished only after it has
-  removed its test pods, because a pod still sending traffic would disturb the next run. If the
-  pods cannot be removed, the run says so and keeps its claim until it expires.
+- **A run holds the cluster until no test pod of it can still be sending.** It marks itself
+  finished only after it has removed every test pod that might still send traffic, because such a
+  pod would disturb the next run. If those pods cannot be removed, the run says so and keeps its
+  claim until it expires. A run that didn't pass may keep the pods of tests that were measured or
+  never started, for inspection; those can't send, so they don't hold the cluster.

@@ -1,8 +1,8 @@
 # Unknown input is refused
 
 **What you notice:** a field dokimi doesn't know, a misspelt keyword, or a value a field doesn't
-accept stops everything, before anything is created. `dokimi validate` says which
-line and why, and a run exits `3`.
+accept stops everything, before anything is created. `dokimi validate` says where and
+why, and a run exits `3`.
 
 ## Why
 
@@ -22,7 +22,8 @@ success for things it never did.
   control structures, setups and teardowns, extra test cases;
 - a value a field doesn't accept, such as a protocol other than `udp` or `tcp`, is refused, not
   guessed at;
-- the cluster's name is refused when it isn't a valid name, never rewritten into one.
+- the cluster's name is refused when it isn't a valid name, never rewritten into one; only
+  surrounding spaces are trimmed.
 
 ## What it costs
 

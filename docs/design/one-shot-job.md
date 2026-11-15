@@ -27,9 +27,13 @@ replace a finding with a second measurement.
 
 ## What it costs
 
-- **What a run leaves behind is deliberate.** The run removes its test pods, and the
-  node-exporter it deployed, when it ends. Its Prometheus stays, so its history can be queried
-  later. Removing it is one `kubectl delete` the run prints for you.
+- **What a run leaves behind is deliberate.** When it ends, the run removes the node-exporter it
+  deployed. A run that passed removes its test pods too. One that didn't keeps its owner, its
+  definition and the pods of tests that were measured or never started, for inspection, until
+  `dokimi cleanup`. Its
+  Prometheus stays, so its history can be queried later with `dokimi prometheus <run-id>`.
+  Removing it is one `kubectl delete` the run prints for you, or
+  `dokimi cleanup <run-id> --prometheus`.
 - **Reports come back through the log.** A Job has no file server, so the run writes its reports
   into its log at the end, and `submit` and `attach` extract them.
 - **One process per run.** There is nothing to share between runs, which is also why a cluster
