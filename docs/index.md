@@ -1,6 +1,6 @@
 ---
 template: home.html
-title: dokimi
+title: Performance testing for Kubernetes
 hide:
   - navigation
   - toc

@@ -48,19 +48,18 @@
   text-decoration: underline;
 }
 
-/* Landing page hero.
+/* Landing page hero: a light hexagon grid behind the banner.
  *
- * The banner carries its own hexagon grid, which scales with the page; a CSS grid behind it
- * would only line up at one width. So in light mode the hero takes the banner's edge colour
- * instead, and the banner's edges fade into it, with no visible border at any width. In dark
- * mode the light banner stays a card on the dark page, over a faint grid of its own. */
+ * The banner is a cutout, the artwork on a transparent background (banner.webp, derived
+ * from banner.jpg by scripts/banner-cutout.py), so this grid is the only one, and it fits
+ * at every width. In dark mode the artwork, drawn for a light background, sits on a light
+ * card over a faint grid of its own. */
 .dk-hero {
-  --dk-hero-bg: #f6f9fd; /* the banner's edge colour */
-  background-color: var(--dk-hero-bg);
+  background-color: var(--md-default-bg-color);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23c9d5e4' stroke-width='1.4'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='%23c9d5e4' stroke-width='1.4'/%3E%3C/svg%3E");
   border-bottom: 1px solid var(--dk-grid-line);
 }
 [data-md-color-scheme="slate"] .dk-hero {
-  background-color: var(--md-default-bg-color);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23ffffff0d' stroke-width='1.2'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='%23ffffff0d' stroke-width='1.2'/%3E%3C/svg%3E");
 }
 .dk-hero__inner {
@@ -73,20 +72,9 @@
   max-width: 54rem;
   height: auto;
   margin: 0 auto;
-  /* Fade the outer 6% on each side into the hero's background. Inside that, the artwork is
-   * untouched: the node labels and the tagline sit well clear of it. */
-  -webkit-mask-image:
-    linear-gradient(to right, transparent, #000 6%, #000 94%, transparent),
-    linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(to right, transparent, #000 6%, #000 94%, transparent),
-    linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
-  mask-composite: intersect;
 }
 [data-md-color-scheme="slate"] .dk-hero__banner {
-  -webkit-mask-image: none;
-  mask-image: none;
+  background-color: #f6f9fd; /* the original artwork's background */
   border-radius: 1rem;
   box-shadow: 0 0.4rem 2rem rgb(0 0 0 / 45%);
 }
