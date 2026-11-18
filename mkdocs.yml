@@ -11,6 +11,7 @@ edit_uri: ""
 
 theme:
   name: material
+  variant: classic       # Material for MkDocs' look; Zensical's default is its new "modern"
   custom_dir: overrides
   language: en
   logo: assets/images/logo.png
@@ -69,8 +70,8 @@ markdown_extensions:
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:zensical.extensions.emoji.twemoji
+      emoji_generator: !!python/name:zensical.extensions.emoji.to_svg
 
 nav:
   - Home: index.md
