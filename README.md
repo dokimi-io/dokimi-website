@@ -35,6 +35,7 @@ push.
 ```text
 docs/                   the pages, in Markdown
 docs/assets/images/     the banner, the logo and the favicons
+scripts/                banner-cutout.py, which derives banner.webp from banner.jpg
 docs/stylesheets/       colours and the landing-page layout
 overrides/main.html     the development notice at the top of every page
 overrides/home.html     the landing page's hero section
