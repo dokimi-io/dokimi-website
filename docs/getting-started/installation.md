@@ -38,17 +38,20 @@ $ brew install uv                                    # or with Homebrew
 
 ## Install dokimi
 
-Install the CLI from the release, as a tool of its own:
+Install the CLI from PyPI, as a tool of its own:
 
 ```console
-$ uv tool install https://github.com/dokimi-io/dokimi/releases/download/v0.1.0/dokimi-0.1.0-py3-none-any.whl
+$ uv tool install dokimi-io
 $ dokimi --version
 dokimi 0.1.0
 ```
 
+On PyPI it is called **`dokimi-io`**, because `dokimi` there is an unrelated project; the command
+it installs is `dokimi`. `pipx install dokimi-io` works too, and each
+[release](https://github.com/dokimi-io/dokimi/releases/tag/v0.1.0) also carries the wheel itself.
+
 The release knows the `orchestrator` and `iperf2` images built with it, by digest, so a run needs
-no image of yours. The [release page](https://github.com/dokimi-io/dokimi/releases/tag/v0.1.0)
-lists them. dokimi is not on PyPI yet.
+no image of yours. The release page lists them.
 
 ### From source
 
