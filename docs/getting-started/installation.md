@@ -67,6 +67,9 @@ examples/worker-01-to-worker-02-udp.yaml is valid.
 
 `validate` contacts nothing, so it works before you have a cluster.
 
+Tab completion for bash, zsh and fish comes with the CLI: `dokimi completion <shell>` prints the
+script. [Using the CLI](using-the-cli.md#completion) says how to load it.
+
 ## Cluster credentials
 
 The CLI picks cluster credentials in this order:
@@ -130,6 +133,7 @@ You, or the CI job that submits, need only namespaced permissions in the run's n
 | `submit`, `preflight` | `create` on Jobs and ConfigMaps; `get` on Pods and their `log`, and `list` on Jobs and Pods, to follow the run; and, once the reports are fetched, `get` and `delete` on ConfigMaps and `list` and `delete` on Jobs, to remove the run |
 | `attach` | the same, without `create`; `get` on ConfigMaps also finds the run's results directory |
 | `cleanup` | `get` on ConfigMaps, and `list` and `delete` on ConfigMaps, Pods, Services, ServiceAccounts, Jobs, Deployments, DaemonSets and StatefulSets |
+| `prometheus` | `list` on Deployments and Pods and `get` on ConfigMaps, to find the run's Prometheus, and `create` on `pods/portforward`, to reach it |
 
 A missing `delete` after a fetch is only a warning: the cluster removes the Job an hour after the
 run ended, and `dokimi cleanup` removes the rest.

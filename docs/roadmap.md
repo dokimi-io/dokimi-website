@@ -31,10 +31,11 @@ cleaned up afterwards.
 | Bringing Robot's report back to your machine | <span class="dk-status dk-status--works">done</span> |
 | Measurement | <span class="dk-status dk-status--works">done</span> |
 | Evaluating the pass criteria | <span class="dk-status dk-status--works">done</span> |
-| Result files: CSV and JSONL | <span class="dk-status dk-status--planned">planned</span> |
+| Result files: CSV and JSONL, and `dokimi prometheus` | <span class="dk-status dk-status--works">done</span> |
 | Post-run diagnostics | <span class="dk-status dk-status--works">done</span> |
 | Outcomes, cleanup and the final exit code | <span class="dk-status dk-status--works">done</span> |
-| An end-to-end acceptance run | <span class="dk-status dk-status--planned">planned</span> |
+| An end-to-end acceptance run | <span class="dk-status dk-status--works">done</span> |
+| Shell completion for bash, zsh and fish | <span class="dk-status dk-status--works">done</span> |
 
 ## After the first release
 

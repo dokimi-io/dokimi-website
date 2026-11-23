@@ -12,8 +12,8 @@ hide:
     resolves its two nodes against your cluster, claims the cluster for itself, starts its own
     Prometheus, checks that the cluster can run the test, runs the `iperf2` test through Robot
     Framework, reads the measurement, evaluates your pass criteria against it, and exits with its
-    verdict. Robot's report comes back to your machine. What it does not do yet is write the CSV
-    and JSONL result files. Everything marked
+    verdict. Robot's report and the result files, as CSV and JSONL, come back to your machine.
+    Until the release you install it from source and build its images yourself. Everything marked
     <span class="dk-status dk-status--works">works today</span> on this site really does.
     Everything else is marked as planned.
 
@@ -26,8 +26,8 @@ hide:
     ---
 
     Write a test as a YAML document or as a Robot Framework suite. Both formats describe the same
-    things, and both are strict: anything dokimi does not understand is refused, with the line
-    and the reason.
+    things, and both are strict: anything dokimi does not understand is refused, saying where
+    and why.
 
     <span class="dk-status dk-status--works">works today</span>
     [:octicons-arrow-right-24: Test definitions](concepts/test-definitions.md)
@@ -103,14 +103,14 @@ hide:
 
 </div>
 
-## What the first release adds
+## The first release
 
-<span class="dk-status dk-status--planned">planned for 0.1</span>
+<span class="dk-status dk-status--works">works today</span>
 
-The first release completes one path end to end. It already runs one `iperf2` UDP test between
-two nodes you name, next to a managed Prometheus, checks the cluster first, reads the measurement,
-evaluates the pass criteria against it, records where everything ran, cleans up after itself and
-exits with its verdict. What it adds is the rest of that path: dokimi writes the results as CSV
-and JSONL, and an end-to-end acceptance run checks the whole of it.
+Everything the first release, 0.1, brings is built: one `iperf2` UDP test between two nodes you
+name, next to a managed Prometheus. The run checks the cluster first, reads the measurement,
+evaluates the pass criteria against it, writes the results as CSV and JSONL, records where
+everything ran, cleans up after itself and exits with its verdict. An end-to-end acceptance run
+checks that whole path on a multi-node test cluster in continuous integration.
 
 [See the roadmap](roadmap.md){ .md-button }

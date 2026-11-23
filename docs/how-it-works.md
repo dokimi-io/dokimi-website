@@ -42,14 +42,14 @@ so this table is also a key to what you see in the log.
 | 6 | Execution | Robot Framework runs the suite, which deploys the test pods, waits until both are ready, starts the traffic and waits for it to finish | <span class="dk-status dk-status--works">works today</span> |
 | 7 | Measurement | An exporter next to each test pod serves its result as Prometheus metrics. The run reads it directly, and the receiver's view is the result; then it checks that Prometheus holds the same values. No data is never a pass | <span class="dk-status dk-status--works">works today</span> |
 | 8 | Validation | Every pass criterion is evaluated against what each pair measured. A test passes, fails, or is an error when a pair couldn't be measured. No data is never a pass | <span class="dk-status dk-status--works">works today</span> |
-| 9 | Reporting | Robot's own report, which comes back to your machine, plus a CSV and JSONL result file | <span class="dk-status dk-status--works">Robot's report works today</span> <span class="dk-status dk-status--planned">CSV and JSONL planned</span> |
+| 9 | Reporting | Robot's own report, which comes back to your machine, and the result files: one record per test and one per criterion, as CSV and JSONL, written from the values the verdict came from | <span class="dk-status dk-status--works">works today</span> |
 | 10 | Diagnostics | Where the pods ran, how each ended, and which pairs were down, captured while that evidence still exists, on every run | <span class="dk-status dk-status--works">works today</span> |
 | 11 | Cleanup and exit | The run cleans up, keeps what a failed run left for you to look at, frees the cluster, and exits with its verdict: `0`, `1` or `2` | <span class="dk-status dk-status--works">works today</span> |
 
 Today a run goes all the way to its verdict. It claims the cluster, starts its Prometheus and
 checks that it answers, checks the cluster with the test's own pair, runs the test through Robot
 Framework, reads the result, evaluates the pass criteria against it, records where everything
-ran, cleans up and exits. Only the CSV and JSONL result files are not built yet, and it says so:
+ran, writes the result files, cleans up and exits:
 
 ```text
 run 20261013-120000-a1b2c3
@@ -64,7 +64,7 @@ phase 4 (preflight): monitoring mode managed (requested)
   ...
 phase 4 (preflight): Prometheus answers queries
   ...
-  query it from your machine with: kubectl port-forward -n dokimi-iperf2 service/run-20261013-120000-a1b2c3-prometheus 9090:9090
+  query it from your machine with: dokimi prometheus 20261013-120000-a1b2c3 --namespace dokimi-iperf2
 phase 4 (preflight): nodes worker-01, worker-02 accept test pods
 phase 4 (preflight): pair-001 scheduled, pulled its image and connected, as run-20261013-120000-a1b2c3-pair-001-preflight-client, run-20261013-120000-a1b2c3-pair-001-preflight-server
   UDP to the server pod at 10.244.2.7:5001 arrived, and kubernetes.default.svc resolved
@@ -82,7 +82,7 @@ phase 8 (validation): pair-001 fail, 2 criterion(s)
   pass  Packet Loss Should Be At Most 0 percent: 0 percent
 
 phase 9a (reporting): /work/artifacts/20261013-120000-a1b2c3/log.html, .../report.html
-phase 9b (results): the CSV and JSONL result files are not built yet. Each test's outcome is in phase 8 above, in its validation.json and in Robot's report
+phase 9b (results): 1 test(s) in tests.csv and tests.jsonl, 2 assertion(s) in assertions.csv and assertions.jsonl
 
 phase 10 (diagnostics): 5 pod(s), 1 pair(s), none down
   ...
@@ -117,8 +117,8 @@ Robot Framework has two separate roles in dokimi.
   pods, waits until both are ready, starts `iperf2` and waits for it to finish. Robot's `rebot`
   merges the reports, and you get Robot's familiar `report.html` and `log.html`.
 
-The report comes back to your machine through the Job's log: `submit` and `attach` extract it
-into the definition's results directory, under the run id:
+The report comes back to your machine through the Job's log, with the run's result files:
+`submit` and `attach` extract them into the definition's results directory, under the run id:
 
 ```text
 results/20261013-120000-a1b2c3/
@@ -126,8 +126,17 @@ results/20261013-120000-a1b2c3/
   report.html    its report
   output.xml     every pair's results, merged
   suite.robot    the suite that ran
-  pairs/         per pair: its output.xml and validation.json, what its criteria came to
+  pairs/         per pair: its output.xml, what it measured and what its criteria came to
+  tests.csv, tests.jsonl            one record per test: what it measured and came to
+  assertions.csv, assertions.jsonl  one record per criterion and pair, passing ones included
+  run.json          the run's record: its configuration, images, outcome and cleanup
+  measurement.json  what each test read directly, and what Prometheus held of it
+  diagnostics.json  where every pod ran, how it ended, and any anomaly
 ```
+
+The result files are written from what each test itself recorded, so a value in them is the
+value the verdict was computed from. [Runs and exit codes](concepts/runs.md#the-result-files)
+lists every column.
 
 Each pass criterion is a keyword in that report. It passes or fails with the measured value in
 its message, and every criterion is checked, not only the first. Each test is tagged

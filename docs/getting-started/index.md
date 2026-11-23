@@ -5,7 +5,7 @@
     There is no release yet, so you install dokimi from source and build the orchestrator and
     `iperf2` images yourself. A run already goes the whole path against a real cluster, from
     submission to its verdict: it runs its test through Robot Framework, brings Robot's report
-    back, and exits with `0`, `1` or `2`. Only the CSV and JSONL result files are not built yet.
+    back with the result files, and exits with `0`, `1` or `2`.
 
 1. **[Installation](installation.md):** what you need, and how to install the CLI.
 2. **[Your first run](first-run.md):** a local multi-node cluster, the images, and a first
