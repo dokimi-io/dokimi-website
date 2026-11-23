@@ -36,9 +36,23 @@ $ curl -LsSf https://astral.sh/uv/install.sh | sh    # macOS, Linux
 $ brew install uv                                    # or with Homebrew
 ```
 
-## Install dokimi from source
+## Install dokimi
 
-dokimi is not on PyPI yet. Install it from the repository:
+Install the CLI from the release, as a tool of its own:
+
+```console
+$ uv tool install https://github.com/dokimi-io/dokimi/releases/download/v0.1.0/dokimi-0.1.0-py3-none-any.whl
+$ dokimi --version
+dokimi 0.1.0
+```
+
+The release knows the `orchestrator` and `iperf2` images built with it, by digest, so a run needs
+no image of yours. The [release page](https://github.com/dokimi-io/dokimi/releases/tag/v0.1.0)
+lists them. dokimi is not on PyPI yet.
+
+### From source
+
+For development, or to try changes that aren't released yet, install from the repository:
 
 ```console
 $ git clone https://github.com/dokimi-io/dokimi.git
@@ -160,16 +174,16 @@ on 9137/TCP on each node's address, if the run deployed one.
 
 A run uses four images, called components:
 
-| Component | What it is | Default in a source install |
-| --- | --- | --- |
-| `orchestrator` | the run's own Job | none |
-| `iperf2` | the test workload, client and server | none |
-| `prometheus` | the run's Prometheus | `quay.io/prometheus/prometheus`, pinned by digest |
-| `node-exporter` | the node-exporter a run deploys when the cluster has none | `quay.io/prometheus/node-exporter`, pinned by digest |
+| Component | What it is | Default in the release | Default in a source install |
+| --- | --- | --- | --- |
+| `orchestrator` | the run's own Job | `ghcr.io/dokimi-io/orchestrator`, pinned by digest | none |
+| `iperf2` | the test workload, client and server | `ghcr.io/dokimi-io/iperf2`, pinned by digest | none |
+| `prometheus` | the run's Prometheus | `quay.io/prometheus/prometheus`, pinned by digest | the same |
+| `node-exporter` | the node-exporter a run deploys when the cluster has none | `quay.io/prometheus/node-exporter`, pinned by digest | the same |
 
-Once releases exist, the CLI will ship with the digests of the `orchestrator` and `iperf2`
-images built from its own commit. **There is no release yet, so a source install has no default
-for those two**, and `submit` refuses, before it creates anything, instead of guessing:
+A released CLI ships with the digests of the `orchestrator` and `iperf2` images built from its
+own commit. **A source install has no default for those two**, since only a release knows which
+images it was built with, and `submit` refuses, before it creates anything, instead of guessing:
 
 ```console
 $ dokimi submit test.yaml
@@ -191,8 +205,8 @@ unchanged in every cluster, while each site can pull from its own mirror. `submi
 image into the Job, so `--dry-run` shows exactly what will run, and `dokimi image` lists every
 component and where its reference came from.
 
-Build the `orchestrator` and `iperf2` images yourself and point dokimi at them.
-[Your first run](first-run.md) shows how.
+With a source install, build the `orchestrator` and `iperf2` images yourself and point dokimi at
+them. [Your first run](first-run.md) shows how.
 
 ## The cluster's name
 

@@ -34,7 +34,7 @@ the exit codes are a stable contract rather than an implementation detail.
 
 ## Where dokimi stands
 
-dokimi is young, and the first release is still being built. Today a run goes from submission to
+dokimi is young: 0.1 is its first release. A run goes from submission to
 its verdict: it validates the definition, submits the run, resolves the two nodes, claims the
 cluster so that no other run can start, starts its own Prometheus, checks that the cluster can
 run the test, runs the `iperf2` test through Robot Framework, reads the measurement, evaluates

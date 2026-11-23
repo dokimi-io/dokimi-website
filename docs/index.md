@@ -6,14 +6,14 @@ hide:
   - toc
 ---
 
-!!! warning "dokimi is in active development"
+!!! info "dokimi 0.1 is out"
 
-    The first release, **0.1**, is coming soon. Until then, a run parses its test definition,
-    resolves its two nodes against your cluster, claims the cluster for itself, starts its own
-    Prometheus, checks that the cluster can run the test, runs the `iperf2` test through Robot
-    Framework, reads the measurement, evaluates your pass criteria against it, and exits with its
-    verdict. Robot's report and the result files, as CSV and JSONL, come back to your machine.
-    Until the release you install it from source and build its images yourself. Everything marked
+    The first release parses your test definition, resolves its two nodes against your cluster,
+    claims the cluster for itself, starts its own Prometheus, checks that the cluster can run the
+    test, runs the `iperf2` test through Robot Framework, reads the measurement, evaluates your
+    pass criteria against it, and exits with its verdict. Robot's report and the result files, as
+    CSV and JSONL, come back to your machine.
+    [Install it](getting-started/installation.md) with one command. Everything marked
     <span class="dk-status dk-status--works">works today</span> on this site really does.
     Everything else is marked as planned.
 
