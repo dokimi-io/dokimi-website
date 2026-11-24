@@ -108,9 +108,9 @@ hide:
 <span class="dk-status dk-status--works">works today</span>
 
 Everything the first release, 0.1, brings is built: one `iperf2` test, UDP or TCP, between two
-nodes you name, next to a managed Prometheus. The run checks the cluster first, reads the measurement,
-evaluates the pass criteria against it, writes the results as CSV and JSONL, records where
-everything ran, cleans up after itself and exits with its verdict. An end-to-end acceptance run
-checks that whole path on a multi-node test cluster in continuous integration.
+nodes you name, next to a managed Prometheus. The run checks the cluster first, reads the
+measurement, evaluates the pass criteria against it, writes the results as CSV and JSONL,
+records where everything ran, cleans up after itself and exits with its verdict. An end-to-end
+acceptance run checks that whole path on a multi-node test cluster in continuous integration.
 
 [See the roadmap](roadmap.md){ .md-button }
