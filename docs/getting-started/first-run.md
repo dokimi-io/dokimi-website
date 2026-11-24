@@ -112,8 +112,9 @@ ran `submit` from: `log.html`, `report.html`, `output.xml` and the `suite.robot`
 to them are the result files: `tests.csv` and `tests.jsonl` with what the test measured and came
 to, `assertions.csv` and `assertions.jsonl` with each criterion, and `run.json`, the run's own
 record. `measurement.json` and `diagnostics.json` hold what was measured and where everything
-ran. Open `log.html` to see each step. Whether the test passes depends on your cluster: the example asks for 950 megabits
-per second without loss, which a cluster on one machine may not reach.
+ran. Open `log.html` to see each step. Whether the test passes depends on your cluster: the
+example asks for 950 megabits per second without loss, which a cluster on one machine may not
+reach.
 
 A run that didn't pass keeps its test pods, with their logs and events, for you to look at, and
 prints the command that removes them: `uv run dokimi cleanup <run-id>`.
