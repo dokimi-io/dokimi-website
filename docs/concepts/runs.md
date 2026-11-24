@@ -50,7 +50,7 @@ Then the run adds what it needs, in two steps.
 
 The run checks that its Prometheus answers a query. If it does not answer within three minutes,
 the run stops with exit code `4`, before any test pod exists. The log names the Prometheus, says
-it is kept, and prints the `kubectl port-forward` command that reaches it from your machine.
+it is kept, and prints the `dokimi prometheus` command that reaches it from your machine.
 
 **Still in phase 4, the cluster checks.** The run reads the nodes again, then deploys the first
 pair once, with its own nodes and image, to see that its pods are scheduled, pull their image,
@@ -132,6 +132,56 @@ it: the client of a test that timed out, or a test that lost a pod or recorded n
 removes those and waits until they are gone before it frees the cluster. If they can't be
 removed, it keeps its claim until the claim expires, and says how to free the cluster earlier.
 [Using the CLI](../getting-started/using-the-cli.md#cleaning-up) shows `dokimi cleanup`.
+
+## The result files
+
+<span class="dk-status dk-status--works">works today</span>
+
+Every run writes its results, without being asked, and they come back with Robot's report: one
+record per test, and one per criterion and pair, each as CSV and as JSONL, the same records
+written twice. They are written from what each test itself recorded, its directly read
+measurement and what its criteria came to, so a value in them is the value the verdict was
+computed from, never one read back from Prometheus.
+
+Each record carries `schema`, `1` today: a column may be added at the end, and removing,
+renaming or reordering one raises it. An empty CSV cell is a JSON `null`. A metric an exporter
+reported as `NaN` or `Inf` is empty too, since JSON has no such number; its test is an `error`
+with the category `exporter_parse`.
+
+**`tests.csv` and `tests.jsonl`**, one record per planned test, whatever it came to:
+
+| Column | What it holds |
+| --- | --- |
+| `schema`, `run_id`, `cluster`, `run_started_at` | The record's version, and the run |
+| `test_id`, `repetition`, `test_type`, `protocol`, `source_node`, `target_node` | The test |
+| `duration_seconds`, `target_bandwidth_bits_per_second` | What the definition asked for |
+| `outcome`, `error_category`, `error_detail` | `pass`, `fail` or `error`, and for an error why |
+| `measurement_source`, `measurement_direction`, `history_captured` | Where the values come from, and whether Prometheus came to hold them |
+| `jitter_seconds`, `packet_loss_percent`, `test_duration_seconds`, `throughput_bits_per_second`, `transferred_bytes` | Every result metric, in base units, empty where the test has none |
+
+**`assertions.csv` and `assertions.jsonl`**, one record per criterion and pair, passing or not:
+
+| Column | What it holds |
+| --- | --- |
+| `schema`, `run_id`, `cluster`, `test_id`, `source_node`, `target_node` | The record's version, the run and the pair |
+| `criterion` | The criterion as the suite writes it |
+| `metric`, `statistic`, `comparison`, `threshold`, `unit` | The criterion's fields; the threshold as written |
+| `measured` | The measured value in the criterion's unit, as a decimal string: exactly what was compared |
+| `outcome`, `error_category`, `error_detail` | `pass`, `fail` or `error`, and for an error why |
+| `promql_equivalent` | How to find the pairs that violate it in the run's Prometheus |
+
+**`run.json`**, the run's own record, written last, once its verdict and cleanup are known:
+
+| Field | What it holds |
+| --- | --- |
+| `schema`, `run_id`, `cluster`, `namespace`, `started_at`, `ended_at`, `preflight_only` | The run |
+| `outcome`, `exit_code` | What it came to; both `null` for a run that stopped on an error, and `stopped` says which |
+| `tests` | How many tests were planned, and how many passed, failed and errored |
+| `retained` | Why the run kept its evidence, or `null` |
+| `cleanup` | Whether it was complete, and if not the `cleanup` category, the problem and the test pods it kept |
+| `configuration` | The effective configuration: the definition, `--retain`, the namespace and the cluster's name |
+| `images` | Each image it ran: its reference, its digest where pinned by one, and where it came from |
+| `plan`, `monitoring`, `scrape_targets` | The plan, the Prometheus it used, and how many of each scrape pool's targets were up or down |
 
 ## One run at a time
 

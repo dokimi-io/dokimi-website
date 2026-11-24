@@ -39,7 +39,7 @@ its verdict: it validates the definition, submits the run, resolves the two node
 cluster so that no other run can start, starts its own Prometheus, checks that the cluster can
 run the test, runs the `iperf2` test through Robot Framework, reads the measurement, evaluates
 the pass criteria against it, cleans up, and exits with the verdict. Robot's report comes back
-to you, with each test's outcome. It does not yet write CSV and JSONL results. The
+to you, with the results as CSV and JSONL and each test's outcome. The
 [roadmap](roadmap.md) shows what comes next, and in which order.
 
 ## Related projects

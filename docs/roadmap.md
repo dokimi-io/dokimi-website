@@ -7,10 +7,10 @@ the design it depends on is settled. **Milestone-01 becomes the first release, 0
 
 <span class="dk-status dk-status--works">in progress</span>
 
-A deliberately narrow first slice. One cluster, one `iperf2` UDP test between two nodes you
-name, over the pod network, measured through a managed Prometheus, evaluated against throughput
-and packet-loss criteria, results written as CSV and JSONL, and everything the run created
-cleaned up afterwards.
+A deliberately narrow first slice. One cluster, one `iperf2` test, UDP or TCP, between two nodes
+you name, over the pod network, measured through a managed Prometheus, evaluated against
+throughput and packet-loss criteria, results written as CSV and JSONL, and everything the run
+created cleaned up afterwards.
 
 | Work item | State |
 | --- | --- |
@@ -31,10 +31,11 @@ cleaned up afterwards.
 | Bringing Robot's report back to your machine | <span class="dk-status dk-status--works">done</span> |
 | Measurement | <span class="dk-status dk-status--works">done</span> |
 | Evaluating the pass criteria | <span class="dk-status dk-status--works">done</span> |
-| Result files: CSV and JSONL | <span class="dk-status dk-status--planned">planned</span> |
+| Result files: CSV and JSONL, and `dokimi prometheus` | <span class="dk-status dk-status--works">done</span> |
 | Post-run diagnostics | <span class="dk-status dk-status--works">done</span> |
 | Outcomes, cleanup and the final exit code | <span class="dk-status dk-status--works">done</span> |
-| An end-to-end acceptance run | <span class="dk-status dk-status--planned">planned</span> |
+| An end-to-end acceptance run | <span class="dk-status dk-status--works">done</span> |
+| Shell completion for bash, zsh and fish | <span class="dk-status dk-status--works">done</span> |
 
 ## After the first release
 
