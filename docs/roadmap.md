@@ -7,10 +7,10 @@ the design it depends on is settled. **Milestone-01 becomes the first release, 0
 
 <span class="dk-status dk-status--works">released as 0.1</span>
 
-A deliberately narrow first slice. One cluster, one `iperf2` UDP test between two nodes you
-name, over the pod network, measured through a managed Prometheus, evaluated against throughput
-and packet-loss criteria, results written as CSV and JSONL, and everything the run created
-cleaned up afterwards.
+A deliberately narrow first slice. One cluster, one `iperf2` test, UDP or TCP, between two nodes
+you name, over the pod network, measured through a managed Prometheus, evaluated against
+throughput and packet-loss criteria, results written as CSV and JSONL, and everything the run
+created cleaned up afterwards.
 
 | Work item | State |
 | --- | --- |
