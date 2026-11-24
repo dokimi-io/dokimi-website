@@ -41,13 +41,16 @@ $ brew install uv                                    # or with Homebrew
 Install the CLI from PyPI, as a tool of its own:
 
 ```console
-$ uv tool install dokimi-io
+$ uv tool install --python 3.14 'dokimi-io[robot]'
 $ dokimi --version
 dokimi 0.1.0
 ```
 
 On PyPI it is called **`dokimi-io`**, because `dokimi` there is an unrelated project; the command
-it installs is `dokimi`. `pipx install dokimi-io` works too, and each
+it installs is `dokimi`. `[robot]` adds Robot Framework, which reading a `.robot` test needs; a
+test written in YAML runs without it. `--python 3.14` makes uv use, or download, a Python that
+dokimi runs on: without it, uv takes the first Python it finds, and refuses when that one is
+older. `pipx install --python python3.14 'dokimi-io[robot]'` works too, and each
 [release](https://github.com/dokimi-io/dokimi/releases/tag/v0.1.0) also carries the wheel itself.
 
 The release knows the `orchestrator` and `iperf2` images built with it, by digest, so a run needs
@@ -60,14 +63,14 @@ For development, or to try changes that aren't released yet, install from the re
 ```console
 $ git clone https://github.com/dokimi-io/dokimi.git
 $ cd dokimi
-$ uv sync --locked
+$ uv sync --locked --extra robot
 $ uv run dokimi --version
 ```
 
 To get a `dokimi` command on your `PATH` instead of one behind `uv run`:
 
 ```console
-$ uv tool install .
+$ uv tool install '.[robot]'
 ```
 
 ## Check the installation
