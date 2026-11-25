@@ -5,7 +5,7 @@ the design it depends on is settled. **Milestone-01 becomes the first release, 0
 
 ## Milestone-01: the first end-to-end run
 
-<span class="dk-status dk-status--works">in progress</span>
+<span class="dk-status dk-status--works">released as 0.1</span>
 
 A deliberately narrow first slice. One cluster, one `iperf2` test, UDP or TCP, between two nodes
 you name, over the pod network, measured through a managed Prometheus, evaluated against

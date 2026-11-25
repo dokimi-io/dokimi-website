@@ -36,21 +36,41 @@ $ curl -LsSf https://astral.sh/uv/install.sh | sh    # macOS, Linux
 $ brew install uv                                    # or with Homebrew
 ```
 
-## Install dokimi from source
+## Install dokimi
 
-dokimi is not on PyPI yet. Install it from the repository:
+Install the CLI from PyPI, as a tool of its own:
+
+```console
+$ uv tool install --python 3.14 'dokimi-io[robot]'
+$ dokimi --version
+dokimi 0.1.0
+```
+
+On PyPI it is called **`dokimi-io`**, because `dokimi` there is an unrelated project; the command
+it installs is `dokimi`. `[robot]` adds Robot Framework, which reading a `.robot` test needs; a
+test written in YAML runs without it. `--python 3.14` makes uv use, or download, a Python that
+dokimi runs on: without it, uv takes the first Python it finds, and refuses when that one is
+older. `pipx install --python python3.14 'dokimi-io[robot]'` works too, and each
+[release](https://github.com/dokimi-io/dokimi/releases/tag/v0.1.0) also carries the wheel itself.
+
+The release knows the `orchestrator` and `iperf2` images built with it, by digest, so a run needs
+no image of yours. The release page lists them.
+
+### From source
+
+For development, or to try changes that aren't released yet, install from the repository:
 
 ```console
 $ git clone https://github.com/dokimi-io/dokimi.git
 $ cd dokimi
-$ uv sync --locked
+$ uv sync --locked --extra robot
 $ uv run dokimi --version
 ```
 
 To get a `dokimi` command on your `PATH` instead of one behind `uv run`:
 
 ```console
-$ uv tool install .
+$ uv tool install '.[robot]'
 ```
 
 ## Check the installation
@@ -160,16 +180,16 @@ on 9137/TCP on each node's address, if the run deployed one.
 
 A run uses four images, called components:
 
-| Component | What it is | Default in a source install |
-| --- | --- | --- |
-| `orchestrator` | the run's own Job | none |
-| `iperf2` | the test workload, client and server | none |
-| `prometheus` | the run's Prometheus | `quay.io/prometheus/prometheus`, pinned by digest |
-| `node-exporter` | the node-exporter a run deploys when the cluster has none | `quay.io/prometheus/node-exporter`, pinned by digest |
+| Component | What it is | Default in the release | Default in a source install |
+| --- | --- | --- | --- |
+| `orchestrator` | the run's own Job | `ghcr.io/dokimi-io/orchestrator`, pinned by digest | none |
+| `iperf2` | the test workload, client and server | `ghcr.io/dokimi-io/iperf2`, pinned by digest | none |
+| `prometheus` | the run's Prometheus | `quay.io/prometheus/prometheus`, pinned by digest | the same |
+| `node-exporter` | the node-exporter a run deploys when the cluster has none | `quay.io/prometheus/node-exporter`, pinned by digest | the same |
 
-Once releases exist, the CLI will ship with the digests of the `orchestrator` and `iperf2`
-images built from its own commit. **There is no release yet, so a source install has no default
-for those two**, and `submit` refuses, before it creates anything, instead of guessing:
+A released CLI ships with the digests of the `orchestrator` and `iperf2` images built from its
+own commit. **A source install has no default for those two**, since only a release knows which
+images it was built with, and `submit` refuses, before it creates anything, instead of guessing:
 
 ```console
 $ dokimi submit test.yaml
@@ -191,8 +211,8 @@ unchanged in every cluster, while each site can pull from its own mirror. `submi
 image into the Job, so `--dry-run` shows exactly what will run, and `dokimi image` lists every
 component and where its reference came from.
 
-Build the `orchestrator` and `iperf2` images yourself and point dokimi at them.
-[Your first run](first-run.md) shows how.
+With a source install, build the `orchestrator` and `iperf2` images yourself and point dokimi at
+them. [Your first run](first-run.md) shows how.
 
 ## The cluster's name
 

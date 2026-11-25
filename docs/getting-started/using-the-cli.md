@@ -227,7 +227,7 @@ and where each reference came from. Each one is chosen the same way, highest fir
 | Release default | built into a released CLI, by digest | the released build |
 
 `--orchestrator-image` and `DOKIMI_IMAGE` are the orchestrator's earlier names, and still work.
-There is no release yet, so a source install has no default for `orchestrator` and `iperf2`.
+A released CLI has its own defaults for `orchestrator` and `iperf2`; a source install has none.
 `dokimi image` lists them as having none, with how to choose one, and still exits `0`; `submit`
 is what refuses.
 
